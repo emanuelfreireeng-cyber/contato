@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emanuel Freire | Engenheiro Estrutural</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg: #080c1a;
+–surface: #0d1225;
+–border: #1a2040;
+–accent: #E85D20;
+–accent2: #c44d18;
+–text: #f0ede8;
+–muted: #5a6080;
+–danger: #e05252;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Background texture */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+repeating-linear-gradient(0deg, transparent, transparent 39px, #ffffff04 39px, #ffffff04 40px),
+repeating-linear-gradient(90deg, transparent, transparent 39px, #ffffff04 39px, #ffffff04 40px);
+pointer-events: none;
+z-index: 0;
+}
+
+.container {
+max-width: 640px;
+margin: 0 auto;
+padding: 48px 24px 80px;
+position: relative;
+z-index: 1;
+}
+
+/* Header */
+.header {
+margin-bottom: 48px;
+opacity: 0;
+transform: translateY(20px);
+animation: fadeUp 0.6s ease forwards;
+}
+
+.badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(–accent);
+border: 1px solid var(–accent);
+padding: 5px 12px;
+margin-bottom: 20px;
+}
+
+.badge::before {
+content: ‘’;
+width: 6px;
+height: 6px;
+background: var(–accent);
+border-radius: 50%;
+animation: pulse 2s ease-in-out infinite;
+}
+
+h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(44px, 10vw, 72px);
+line-height: 0.95;
+letter-spacing: 0.02em;
+color: var(–text);
+margin-bottom: 16px;
+}
+
+h1 span {
+color: var(–accent);
+display: block;
+}
+
+.subtitle {
+font-size: 15px;
+color: var(–muted);
+line-height: 1.6;
+max-width: 480px;
+font-weight: 300;
+}
+
+.subtitle strong {
+color: var(–text);
+font-weight: 500;
+}
+
+/* Divider */
+.divider {
+height: 1px;
+background: linear-gradient(90deg, var(–accent), transparent);
+margin: 32px 0;
+opacity: 0;
+animation: fadeUp 0.6s ease 0.2s forwards;
+}
+
+/* Form */
+.form {
+opacity: 0;
+animation: fadeUp 0.6s ease 0.3s forwards;
+}
+
+.step {
+display: none;
+}
+.step.active {
+display: block;
+animation: fadeUp 0.4s ease forwards;
+}
+
+.step-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(–muted);
+margin-bottom: 24px;
+}
+
+.step-label span {
+color: var(–accent);
+}
+
+.field {
+margin-bottom: 20px;
+}
+
+label {
+display: block;
+font-size: 13px;
+font-weight: 500;
+letter-spacing: 0.03em;
+color: var(–text);
+margin-bottom: 8px;
+text-transform: uppercase;
+}
+
+label .req {
+color: var(–accent);
+margin-left: 2px;
+}
+
+input[type=“text”],
+input[type=“tel”],
+input[type=“email”],
+select,
+textarea {
+width: 100%;
+background: var(–surface);
+border: 1px solid var(–border);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+font-size: 15px;
+font-weight: 300;
+padding: 14px 16px;
+outline: none;
+transition: border-color 0.2s, background 0.2s;
+-webkit-appearance: none;
+border-radius: 0;
+}
+
+input:focus, select:focus, textarea:focus {
+border-color: var(–accent);
+background: #161616;
+}
+
+select {
+cursor: pointer;
+background-image: url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘12’ height=‘8’ viewBox=‘0 0 12 8’%3E%3Cpath d=‘M1 1l5 5 5-5’ stroke=’%23E8C547’ stroke-width=‘1.5’ fill=‘none’/%3E%3C/svg%3E”);
+background-repeat: no-repeat;
+background-position: right 16px center;
+padding-right: 40px;
+}
+
+select option { background: #111; }
+
+textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+
+/* Radio cards */
+.radio-group {
+display: grid;
+gap: 8px;
+}
+
+.radio-card {
+position: relative;
+cursor: pointer;
+}
+
+.radio-card input {
+position: absolute;
+opacity: 0;
+width: 0;
+height: 0;
+}
+
+.radio-card .card-body {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 16px;
+border: 1px solid var(–border);
+background: var(–surface);
+transition: all 0.2s;
+cursor: pointer;
+}
+
+.radio-card input:checked + .card-body {
+border-color: var(–accent);
+background: #1a1800;
+}
+
+.radio-card .card-body:hover {
+border-color: #444;
+}
+
+.radio-dot {
+width: 16px;
+height: 16px;
+border: 1.5px solid var(–muted);
+border-radius: 50%;
+flex-shrink: 0;
+position: relative;
+transition: border-color 0.2s;
+}
+
+.radio-card input:checked + .card-body .radio-dot {
+border-color: var(–accent);
+}
+
+.radio-card input:checked + .card-body .radio-dot::after {
+content: ‘’;
+position: absolute;
+inset: 3px;
+background: var(–accent);
+border-radius: 50%;
+}
+
+.card-text {
+font-size: 14px;
+font-weight: 400;
+}
+
+.card-sub {
+font-size: 12px;
+color: var(–muted);
+margin-top: 2px;
+font-weight: 300;
+}
+
+/* Checkbox group */
+.checkbox-group {
+display: grid;
+gap: 8px;
+}
+
+.check-card {
+position: relative;
+cursor: pointer;
+}
+
+.check-card input {
+position: absolute;
+opacity: 0;
+width: 0;
+height: 0;
+}
+
+.check-card .card-body {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 13px 16px;
+border: 1px solid var(–border);
+background: var(–surface);
+transition: all 0.2s;
+cursor: pointer;
+}
+
+.check-card input:checked + .card-body {
+border-color: var(–accent);
+background: #1a1800;
+}
+
+.check-box {
+width: 16px;
+height: 16px;
+border: 1.5px solid var(–muted);
+flex-shrink: 0;
+position: relative;
+transition: border-color 0.2s;
+}
+
+.check-card input:checked + .card-body .check-box {
+border-color: var(–accent);
+background: var(–accent);
+}
+
+.check-card input:checked + .card-body .check-box::after {
+content: ‘✓’;
+position: absolute;
+inset: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 10px;
+color: #000;
+font-weight: 700;
+}
+
+/* Buttons */
+.btn-next {
+width: 100%;
+background: var(–accent);
+color: #000;
+border: none;
+padding: 16px;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+letter-spacing: 0.1em;
+cursor: pointer;
+margin-top: 28px;
+transition: background 0.2s, transform 0.1s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+}
+
+.btn-next:hover { background: var(–accent2); }
+.btn-next:active { transform: scale(0.99); }
+.btn-next:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+.btn-back {
+background: none;
+border: none;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+cursor: pointer;
+padding: 8px 0;
+margin-top: 12px;
+transition: color 0.2s;
+}
+.btn-back:hover { color: var(–text); }
+
+/* Progress */
+.progress-bar {
+display: flex;
+gap: 4px;
+margin-bottom: 32px;
+}
+
+.progress-seg {
+height: 3px;
+flex: 1;
+background: var(–border);
+transition: background 0.3s;
+}
+
+.progress-seg.done { background: var(–accent); }
+.progress-seg.active { background: var(–accent); opacity: 0.5; }
+
+/* Error */
+.error-msg {
+font-size: 12px;
+color: var(–danger);
+margin-top: 6px;
+font-family: ‘DM Mono’, monospace;
+display: none;
+}
+
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea {
+border-color: var(–danger);
+}
+
+.field.has-error .error-msg { display: block; }
+
+/* Success screen */
+.success-screen {
+display: none;
+text-align: center;
+padding: 60px 0;
+animation: fadeUp 0.6s ease forwards;
+}
+
+.success-icon {
+width: 72px;
+height: 72px;
+border: 2px solid var(–accent);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 24px;
+font-size: 28px;
+}
+
+.success-screen h2 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 48px;
+letter-spacing: 0.05em;
+margin-bottom: 12px;
+color: var(–accent);
+}
+
+.success-screen p {
+color: var(–muted);
+font-size: 15px;
+line-height: 1.6;
+font-weight: 300;
+max-width: 360px;
+margin: 0 auto 32px;
+}
+
+.whatsapp-btn {
+display: inline-flex;
+align-items: center;
+gap: 10px;
+background: #25D366;
+color: #000;
+text-decoration: none;
+padding: 14px 28px;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+letter-spacing: 0.1em;
+transition: opacity 0.2s;
+}
+.whatsapp-btn:hover { opacity: 0.9; }
+
+/* Animations */
+@keyframes fadeUp {
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+/* Footer note */
+.footer-note {
+margin-top: 48px;
+padding-top: 24px;
+border-top: 1px solid var(–border);
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+color: #333;
+letter-spacing: 0.08em;
+text-align: center;
+text-transform: uppercase;
+}
+
+/* Conditional field */
+.conditional { display: none; }
+.conditional.show { display: block; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+
+  <div class="header">
+    <div class="badge">Projetos Estruturais</div>
+    <h1>SOLICITE<span>SEU PROJETO</span></h1>
+    <p class="subtitle">
+      Preencha o formulário abaixo para que eu possa entender sua demanda.<br>
+      <strong>Responderei em até 72h úteis.</strong>
+    </p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Form -->
+
+  <div class="form" id="formWrapper">
+
+```
+<!-- Progress -->
+<div class="progress-bar" id="progressBar">
+  <div class="progress-seg active" data-step="1"></div>
+  <div class="progress-seg" data-step="2"></div>
+  <div class="progress-seg" data-step="3"></div>
+</div>
+
+<!-- STEP 1: Identificação -->
+<div class="step active" id="step1">
+  <div class="step-label"><span>01</span> / 03 — Identificação</div>
+
+  <div class="field" id="f-nome">
+    <label>Seu nome <span class="req">*</span></label>
+    <input type="text" id="nome" placeholder="Nome completo" autocomplete="name">
+    <div class="error-msg">Por favor, informe seu nome.</div>
+  </div>
+
+  <div class="field" id="f-tipo">
+    <label>Você é <span class="req">*</span></label>
+    <div class="radio-group">
+      <label class="radio-card">
+        <input type="radio" name="tipo" value="arquiteto">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Arquiteto(a)</div>
+            <div class="card-sub">Preciso de compatibilização estrutural para projetos de clientes</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="tipo" value="construtora">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Construtora / Incorporadora</div>
+            <div class="card-sub">Demanda recorrente de projetos estruturais</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="tipo" value="proprietario">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Proprietário / Pessoa Física</div>
+            <div class="card-sub">Quero construir ou reformar meu imóvel</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="tipo" value="outro">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Outro</div>
+          </div>
+        </div>
+      </label>
+    </div>
+    <div class="error-msg" id="tipo-error">Selecione uma opção.</div>
+  </div>
+
+  <div class="field" id="f-whatsapp">
+    <label>WhatsApp <span class="req">*</span></label>
+    <input type="tel" id="whatsapp" placeholder="(85) 99999-9999" autocomplete="tel">
+    <div class="error-msg">Informe um número válido.</div>
+  </div>
+
+  <button class="btn-next" id="next1">PRÓXIMO →</button>
+</div>
+
+<!-- STEP 2: Projeto -->
+<div class="step" id="step2">
+  <div class="step-label"><span>02</span> / 03 — Sobre o Projeto</div>
+
+  <div class="field" id="f-servico">
+    <label>Tipo de serviço <span class="req">*</span></label>
+    <div class="radio-group">
+      <label class="radio-card">
+        <input type="radio" name="servico" value="projeto_completo">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Projeto Estrutural Completo</div>
+            <div class="card-sub">Cálculo, dimensionamento e pranchas para execução</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="servico" value="revisao">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Revisão de Projeto</div>
+            <div class="card-sub">Análise e validação de projeto existente</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="servico" value="consultoria">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Consultoria / Laudo Técnico</div>
+            <div class="card-sub">Avaliação de obra, patologias ou problemas estruturais</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="servico" value="acompanhamento">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Acompanhamento de Obra</div>
+            <div class="card-sub">Supervisão da execução estrutural</div>
+          </div>
+        </div>
+      </label>
+    </div>
+    <div class="error-msg" id="servico-error">Selecione o tipo de serviço.</div>
+  </div>
+
+  <div class="field" id="f-tipologia">
+    <label>Tipologia da obra <span class="req">*</span></label>
+    <select id="tipologia">
+      <option value="">Selecione...</option>
+      <option value="residencial_unifamiliar">Residencial Unifamiliar (casa)</option>
+      <option value="residencial_multifamiliar">Residencial Multifamiliar (prédio)</option>
+      <option value="comercial">Comercial / Corporativo</option>
+      <option value="industrial">Industrial / Galpão</option>
+      <option value="muro_fundacao">Muro / Fundação / Contenção</option>
+      <option value="reforma">Reforma / Ampliação</option>
+      <option value="outro">Outro</option>
+    </select>
+    <div class="error-msg">Selecione a tipologia.</div>
+  </div>
+
+  <div class="field" id="f-area">
+    <label>Área aproximada (m²) <span class="req">*</span></label>
+    <div class="radio-group" style="grid-template-columns: 1fr 1fr;">
+      <label class="radio-card">
+        <input type="radio" name="area" value="ate100">
+        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Até 100 m²</div></div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="area" value="100a300">
+        <div class="card-body"><div class="radio-dot"></div><div class="card-text">100 – 300 m²</div></div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="area" value="300a600">
+        <div class="card-body"><div class="radio-dot"></div><div class="card-text">300 – 600 m²</div></div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="area" value="acima600">
+        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Acima de 600 m²</div></div>
+      </label>
+    </div>
+    <div class="error-msg" id="area-error">Selecione a área aproximada.</div>
+  </div>
+
+  <div class="field" id="f-cidade">
+    <label>Cidade / Estado da obra <span class="req">*</span></label>
+    <input type="text" id="cidade" placeholder="Ex: Russas – CE">
+    <div class="error-msg">Informe a cidade da obra.</div>
+  </div>
+
+  <button class="btn-next" id="next2">PRÓXIMO →</button>
+  <button class="btn-back" id="back2">← voltar</button>
+</div>
+
+<!-- STEP 3: Detalhes -->
+<div class="step" id="step3">
+  <div class="step-label"><span>03</span> / 03 — Detalhes e Prazo</div>
+
+  <div class="field" id="f-prazo">
+    <label>Urgência / Prazo esperado <span class="req">*</span></label>
+    <div class="radio-group">
+      <label class="radio-card">
+        <input type="radio" name="prazo" value="urgente">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Urgente</div>
+            <div class="card-sub">Preciso em até 2 semanas</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="prazo" value="normal">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Normal</div>
+            <div class="card-sub">Entre 2 semanas e 2 meses</div>
+          </div>
+        </div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="prazo" value="flexivel">
+        <div class="card-body">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="card-text">Flexível</div>
+            <div class="card-sub">Sem prazo definido ainda</div>
+          </div>
+        </div>
+      </label>
+    </div>
+    <div class="error-msg" id="prazo-error">Selecione o prazo.</div>
+  </div>
+
+  <div class="field" id="f-tem-arq">
+    <label>Tem projeto arquitetônico? <span class="req">*</span></label>
+    <div class="radio-group" style="grid-template-columns: 1fr 1fr;">
+      <label class="radio-card">
+        <input type="radio" name="tem_arq" value="sim">
+        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Sim</div></div>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="tem_arq" value="nao">
+        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Não ainda</div></div>
+      </label>
+    </div>
+    <div class="error-msg" id="tem_arq-error">Selecione uma opção.</div>
+  </div>
+
+  <div class="field" id="f-descricao">
+    <label>Descreva brevemente o projeto</label>
+    <textarea id="descricao" placeholder="Ex: Casa térrea com laje, 3 quartos, terreno em declive, Russas/CE…"></textarea>
+  </div>
+
+  <div class="field" id="f-como_conheceu">
+    <label>Como me encontrou? <span class="req">*</span></label>
+    <select id="como_conheceu">
+      <option value="">Selecione...</option>
+      <option value="instagram">Instagram</option>
+      <option value="tiktok">TikTok</option>
+      <option value="indicacao">Indicação</option>
+      <option value="linkedin">LinkedIn</option>
+      <option value="google">Google</option>
+      <option value="outro">Outro</option>
+    </select>
+    <div class="error-msg">Selecione como me encontrou.</div>
+  </div>
+
+  <button class="btn-next" id="submitBtn">ENVIAR SOLICITAÇÃO ✓</button>
+  <button class="btn-back" id="back3">← voltar</button>
+</div>
+
+<!-- Success -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✓</div>
+  <h2>RECEBIDO!</h2>
+  <p>Sua solicitação foi registrada. Vou analisar os detalhes e entrar em contato pelo WhatsApp em até 72h úteis.</p>
+  <a href="#" class="whatsapp-btn" id="whatsappLink">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    FALAR NO WHATSAPP
+  </a>
+</div>
+```
+
+  </div><!-- /form -->
+
+  <div class="footer-note">Emanuel Freire Gonçalves · Engenheiro Civil · CREA/CE</div>
+
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 3;
+  const userData = {};
+
+  // Progress bar
+  function updateProgress(step) {
+    document.querySelectorAll('.progress-seg').forEach((seg, i) => {
+      seg.classList.remove('done', 'active');
+      if (i + 1 < step) seg.classList.add('done');
+      if (i + 1 === step) seg.classList.add('active');
+    });
+  }
+
+  function showStep(step) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById('step' + step);
+    if (el) el.classList.add('active');
+    updateProgress(step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Validation helpers
+  function getRadioVal(name) {
+    const checked = document.querySelector(`input[name="${name}"]:checked`);
+    return checked ? checked.value : '';
+  }
+
+  function clearError(fieldId) {
+    const f = document.getElementById(fieldId);
+    if (f) f.classList.remove('has-error');
+  }
+
+  function setError(fieldId) {
+    const f = document.getElementById(fieldId);
+    if (f) f.classList.add('has-error');
+    return false;
+  }
+
+  function showRadioError(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? 'block' : 'none';
+  }
+
+  // Step 1 validation
+  document.getElementById('next1').addEventListener('click', () => {
+    let valid = true;
+
+    const nome = document.getElementById('nome').value.trim();
+    clearError('f-nome');
+    if (!nome) { setError('f-nome'); valid = false; }
+
+    const tipo = getRadioVal('tipo');
+    showRadioError('tipo-error', !tipo);
+    if (!tipo) valid = false;
+
+    const wpp = document.getElementById('whatsapp').value.replace(/\D/g, '');
+    clearError('f-whatsapp');
+    if (wpp.length < 10) { setError('f-whatsapp'); valid = false; }
+
+    if (valid) {
+      userData.nome = nome;
+      userData.tipo = tipo;
+      userData.whatsapp = document.getElementById('whatsapp').value.trim();
+      currentStep = 2;
+      showStep(2);
+    }
+  });
+
+  // Step 2 validation
+  document.getElementById('next2').addEventListener('click', () => {
+    let valid = true;
+
+    const servico = getRadioVal('servico');
+    showRadioError('servico-error', !servico);
+    if (!servico) valid = false;
+
+    const tipologia = document.getElementById('tipologia').value;
+    clearError('f-tipologia');
+    if (!tipologia) { setError('f-tipologia'); valid = false; }
+
+    const area = getRadioVal('area');
+    showRadioError('area-error', !area);
+    if (!area) valid = false;
+
+    const cidade = document.getElementById('cidade').value.trim();
+    clearError('f-cidade');
+    if (!cidade) { setError('f-cidade'); valid = false; }
+
+    if (valid) {
+      userData.servico = servico;
+      userData.tipologia = tipologia;
+      userData.area = area;
+      userData.cidade = cidade;
+      currentStep = 3;
+      showStep(3);
+    }
+  });
+
+  // Step 3 validation + submit
+  document.getElementById('submitBtn').addEventListener('click', () => {
+    let valid = true;
+
+    const prazo = getRadioVal('prazo');
+    showRadioError('prazo-error', !prazo);
+    if (!prazo) valid = false;
+
+    const tem_arq = getRadioVal('tem_arq');
+    showRadioError('tem_arq-error', !tem_arq);
+    if (!tem_arq) valid = false;
+
+    const como = document.getElementById('como_conheceu').value;
+    clearError('f-como_conheceu');
+    if (!como) { setError('f-como_conheceu'); valid = false; }
+
+    if (valid) {
+      userData.prazo = prazo;
+      userData.tem_arq = tem_arq;
+      userData.descricao = document.getElementById('descricao').value.trim();
+      userData.como_conheceu = como;
+
+      // Build WhatsApp message
+      const labels = {
+        tipo: { arquiteto: 'Arquiteto(a)', construtora: 'Construtora/Incorporadora', proprietario: 'Proprietário/Pessoa Física', outro: 'Outro' },
+        servico: { projeto_completo: 'Projeto Estrutural Completo', revisao: 'Revisão de Projeto', consultoria: 'Consultoria/Laudo', acompanhamento: 'Acompanhamento de Obra' },
+        tipologia: { residencial_unifamiliar: 'Residencial Unifamiliar', residencial_multifamiliar: 'Residencial Multifamiliar', comercial: 'Comercial', industrial: 'Industrial/Galpão', muro_fundacao: 'Muro/Fundação/Contenção', reforma: 'Reforma/Ampliação', outro: 'Outro' },
+        area: { ate100: 'Até 100 m²', '100a300': '100–300 m²', '300a600': '300–600 m²', acima600: 'Acima de 600 m²' },
+        prazo: { urgente: 'Urgente (até 2 semanas)', normal: 'Normal (2 sem – 2 meses)', flexivel: 'Flexível' },
+        tem_arq: { sim: 'Sim', nao: 'Não ainda' },
+        como_conheceu: { instagram: 'Instagram', tiktok: 'TikTok', indicacao: 'Indicação', linkedin: 'LinkedIn', google: 'Google', outro: 'Outro' }
+      };
+
+      const nl = '%0A';
+      const msg = `Olá Emanuel! Preenchi o formulário de contato.${nl}${nl}` +
+        `*Nome:* ${userData.nome} ${nl}` +
+        `*Sou:* ${labels.tipo[userData.tipo]} ${nl}` +
+        `*Serviço:* ${labels.servico[userData.servico]} ` +
+        `*Tipologia:* ${labels.tipologia[userData.tipologia]}${nl}` +
+        `*Área:* ${labels.area[userData.area]} ${nl}` +
+        `*Cidade:* ${userData.cidade} ${nl}` +
+        `*Prazo:* ${labels.prazo[userData.prazo]}${nl}` +
+        `*Tem projeto arq.:* ${labels.tem_arq[userData.tem_arq]} ${nl}` +
+        `*Como me encontrou:* ${labels.como_conheceu[userData.como_conheceu]}` +
+        (userData.descricao ? `${nl}*Detalhes:* ${userData.descricao}` : '');
+
+      const phone = '5588999040110';
+      const waUrl = `https://wa.me/${phone}?text=${msg}`;
+      document.getElementById('whatsappLink').href = waUrl;
+
+      // Show success
+      document.getElementById('progressBar').style.display = 'none';
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      const success = document.getElementById('successScreen');
+      success.style.display = 'block';
+    }
+  });
+
+  // Back buttons
+  document.getElementById('back2').addEventListener('click', () => { currentStep = 1; showStep(1); });
+  document.getElementById('back3').addEventListener('click', () => { currentStep = 2; showStep(2); });
+
+  // Phone mask
+  document.getElementById('whatsapp').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').substring(0, 11);
+    if (v.length > 6) v = `(${v.substring(0,2)}) ${v.substring(2,7)}-${v.substring(7)}`;
+    else if (v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
+    else if (v.length > 0) v = `(${v}`;
+    this.value = v;
+  });
+</script>
+
+</body>
+</html>
