@@ -668,11 +668,21 @@ tbody td.bold{color:var(--text);font-weight:500;}
       <div id="permissoesBox" style="display:none;background:var(--bg);border:1px solid var(--border2);padding:16px;margin-bottom:16px">
         <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Permissões de acesso</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          ${['dashboard','leads','clientes','projetos','agenda'].map(m=>`
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted2)">
-            <input type="checkbox" id="perm-${m}" checked style="accent-color:var(--accent)">
-            ${m.charAt(0).toUpperCase()+m.slice(1)}
-          </label>`).join('')}
+            <input type="checkbox" id="perm-dashboard" checked style="accent-color:var(--accent)"> Dashboard
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted2)">
+            <input type="checkbox" id="perm-leads" checked style="accent-color:var(--accent)"> Leads
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted2)">
+            <input type="checkbox" id="perm-clientes" checked style="accent-color:var(--accent)"> Clientes
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted2)">
+            <input type="checkbox" id="perm-projetos" checked style="accent-color:var(--accent)"> Projetos
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted2)">
+            <input type="checkbox" id="perm-agenda" checked style="accent-color:var(--accent)"> Agenda
+          </label>
         </div>
       </div>
       <div id="usuarioError" style="font-size:12px;color:var(--danger);font-family:'DM Mono',monospace;display:none;margin-top:-8px"></div>
@@ -735,6 +745,7 @@ let pjFiltro = ''; // filtra por status
 let pjPeriodo = ''; // filtra por período (igual dashboard)
 let pjCustomDe = '';
 let pjCustomAte = '';
+let pjBusca = ''; // busca por nome/cliente
 
 // Cache local para performance
 let cache = { leads:[], clientes:[], projetos:[], agenda:[], usuarios:[] };
@@ -1449,10 +1460,17 @@ function renderProjetos(){
   const projetos=cache.projetos;
   const clientes=cache.clientes;
 
-  // Filtro por período
+  // Filtros
   const cutoffs=getPjCutoffs();
   let fil=projetos.filter(p=>{
     if(pjFiltro && p.status!==pjFiltro) return false;
+    if(pjBusca){
+      const q=pjBusca.toLowerCase();
+      const cli=clientes.find(c=>c.id===p.clienteId);
+      const nomeProj=(p.descricao||'').toLowerCase();
+      const nomeCli=(cli?cli.nome:'').toLowerCase();
+      if(!nomeProj.includes(q) && !nomeCli.includes(q)) return false;
+    }
     if(cutoffs){
       const dataRef=p.inicio||p.criadoEm;
       if(!dataRef) return true;
@@ -1466,8 +1484,12 @@ function renderProjetos(){
 
   document.getElementById('mainContent').innerHTML=`<div class="page">
     <div class="filter-bar" style="margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <input type="text" placeholder="Buscar projeto ou cliente..." value="${pjBusca}"
+        oninput="pjBusca=this.value;renderProjetos()"
+        style="min-width:200px;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'">
       <select onchange="pjFiltro=this.value;renderProjetos()">
-        <option value="">Todos os status</option>
+        <option value="" ${pjFiltro===''?'selected':''}>Todos os status</option>
         <option value="elaboracao" ${pjFiltro==='elaboracao'?'selected':''}>Em elaboração</option>
         <option value="aguardando" ${pjFiltro==='aguardando'?'selected':''}>Aguardando ARQ</option>
         <option value="entregue" ${pjFiltro==='entregue'?'selected':''}>Entregue</option>
@@ -1552,16 +1574,12 @@ function renderWorkspace(id, aba){
   const prazoDate=p.prazo?new Date(p.prazo+'T00:00:00'):null;
   const vencido=prazoDate&&prazoDate<hoje&&p.status!=='entregue';
 
-  // Topbar com breadcrumb e botões
+  // Topbar com breadcrumb simples
   document.getElementById('topbarTitle').innerHTML=`
     <span style="color:var(--muted);cursor:pointer;font-size:16px" onclick="renderProjetos()">Projetos</span>
-    <span style="color:var(--muted);margin:0 8px">/</span>
-    <span style="font-size:18px">${p.descricao}</span>`;
-  document.getElementById('topbarActions').innerHTML=`
-    <select class="status-select" onchange="moverProjeto('${id}',this.value)">
-      ${Object.entries(L.statusProj).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v}</option>`).join('')}
-    </select>
-    <button class="btn btn-ghost btn-sm" onclick="openEditProjeto('${id}')">✎ Editar</button>`;
+    <span style="color:var(--muted);margin:0 6px">/</span>
+    <span style="font-size:16px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle">${p.descricao}</span>`;
+  document.getElementById('topbarActions').innerHTML='';
 
   // Conteúdo principal
   const abas=['quadros','financeiro'];
@@ -1571,8 +1589,8 @@ function renderWorkspace(id, aba){
 
     <!-- HEADER DO PROJETO -->
     <div class="card" style="margin-bottom:16px;border-left:3px solid ${cor}">
-      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-        <div style="flex:1;min-width:200px">
+      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
           <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px">${cli?cli.nome:'—'} · ${lbl('servico',p.servico)||'—'}</div>
           <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted2)">
             <span>💰 R$ ${Number(p.valor||0).toLocaleString('pt-BR')}</span>
@@ -1580,7 +1598,7 @@ function renderWorkspace(id, aba){
             ${p.prazo?`<span style="color:${vencido?'var(--danger)':'inherit'}">🏁 ${fmtDateBr(p.prazo)}${vencido?' ⚠':''}</span>`:''}
           </div>
         </div>
-        <div style="min-width:200px;flex:1">
+        <div style="min-width:180px;flex:1">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px">
             <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">PROGRESSO GERAL</span>
             <span style="font-size:11px;font-family:'DM Mono',monospace;color:${cor}">${p.progresso||0}%</span>
@@ -1589,6 +1607,12 @@ function renderWorkspace(id, aba){
             <div class="progress-track" style="flex:1;height:6px"><div class="progress-fill" style="width:${p.progresso||0}%;background:${cor}"></div></div>
             <span style="font-size:11px;font-family:'DM Mono',monospace;color:${cor};flex-shrink:0">${p.progresso||0}% concluído</span>
           </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap">
+          <select class="status-select" onchange="moverProjeto('${id}',this.value)">
+            ${Object.entries(L.statusProj).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v}</option>`).join('')}
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="openEditProjeto('${id}')">✎ Editar</button>
         </div>
       </div>
     </div>
@@ -2307,254 +2331,148 @@ function hexToRgba(hex, alpha){
 aplicarTema(loadTema());
 
 // ════════ EDITOR DE FORMULÁRIO ════════
+const GITHUB_REPO  = 'emanuel-engcivil/emanuel-engcivil.github.io';
+const GITHUB_FILE  = 'index.html';
+const GITHUB_BRANCH = 'main';
+
 const FORM_DEFAULT = {
-  header: {
-    badge: 'Projetos Estruturais',
-    titulo1: 'SOLICITE',
-    titulo2: 'SEU PROJETO',
-    subtitulo: 'Preencha o formulário abaixo para que eu possa entender sua demanda.',
-    subtituloDestaque: 'Responderei em até 72h úteis.',
+  header:{
+    badge:'Projetos Estruturais',
+    titulo1:'SOLICITE',
+    titulo2:'SEU PROJETO',
+    subtitulo:'Preencha o formulário abaixo para que eu possa entender sua demanda.',
+    subtituloDestaque:'Responderei em até 72h úteis.',
   },
-  step1: {
-    label: '01 / 03 — Identificação',
-    campos: {
-      nome:      { label:'Seu nome',   placeholder:'Nome completo',       obrigatorio:true,  ativo:true },
-      tipo:      { label:'Você é',     obrigatorio:true,  ativo:true,
-        opcoes:[
-          {value:'arquiteto',    label:'Arquiteto(a) / Engenheiro(a)'},
-          {value:'construtora',  label:'Construtora / Incorporadora / Escritório'},
-          {value:'proprietario', label:'Proprietário / Pessoa Física'},
-          {value:'outro',        label:'Outro'},
-        ]
-      },
-      whatsapp:  { label:'WhatsApp',   placeholder:'(85) 99999-9999',     obrigatorio:true,  ativo:true },
-      email:     { label:'E-mail',     placeholder:'seu@email.com',       obrigatorio:true,  ativo:true },
+  step1:{
+    label:'01 / 03 — Identificação',
+    campos:{
+      nome:     {label:'Seu nome',   placeholder:'Nome completo',     obrigatorio:true, ativo:true},
+      tipo:     {label:'Você é',     obrigatorio:true, ativo:true, opcoes:[
+        {value:'arquiteto',    label:'Arquiteto(a) / Engenheiro(a)'},
+        {value:'construtora',  label:'Construtora / Incorporadora / Escritório'},
+        {value:'proprietario', label:'Proprietário / Pessoa Física'},
+        {value:'outro',        label:'Outro'},
+      ]},
+      whatsapp: {label:'WhatsApp',   placeholder:'(85) 99999-9999',   obrigatorio:true, ativo:true},
+      email:    {label:'E-mail',     placeholder:'seu@email.com',     obrigatorio:true, ativo:true},
     }
   },
-  step2: {
-    label: '02 / 03 — Sobre o Projeto',
-    campos: {
-      servico: { label:'Tipo de serviço', obrigatorio:true, ativo:true,
-        opcoes:[
-          {value:'projeto_completo',  label:'Projeto Estrutural Completo'},
-          {value:'revisao',           label:'Revisão de Projeto'},
-          {value:'consultoria',       label:'Consultoria / Laudo Técnico'},
-          {value:'acompanhamento',    label:'Acompanhamento de Obra'},
-        ]
-      },
-      tipologia: { label:'Tipologia da obra', obrigatorio:true, ativo:true,
-        opcoes:[
-          {value:'residencial_unifamiliar',   label:'Residencial Unifamiliar (casa)'},
-          {value:'residencial_multifamiliar', label:'Residencial Multifamiliar (prédio)'},
-          {value:'comercial',                label:'Comercial / Corporativo'},
-          {value:'industrial',               label:'Industrial / Galpão'},
-          {value:'muro_fundacao',            label:'Muro / Fundação / Contenção'},
-          {value:'reforma',                  label:'Reforma / Ampliação'},
-          {value:'outro',                    label:'Outro'},
-        ]
-      },
-      area: { label:'Área aproximada (m²)', obrigatorio:true, ativo:true,
-        opcoes:[
-          {value:'ate100',   label:'Até 100 m²'},
-          {value:'100a300',  label:'100 — 300 m²'},
-          {value:'300a600',  label:'300 — 600 m²'},
-          {value:'acima600', label:'Acima de 600 m²'},
-        ]
-      },
-      cidade: { label:'Cidade / Estado da obra', placeholder:'Ex: Russas — CE', obrigatorio:true, ativo:true },
+  step2:{
+    label:'02 / 03 — Sobre o Projeto',
+    campos:{
+      servico:  {label:'Tipo de serviço', obrigatorio:true, ativo:true, opcoes:[
+        {value:'projeto_completo', label:'Projeto Estrutural Completo'},
+        {value:'revisao',          label:'Revisão de Projeto'},
+        {value:'consultoria',      label:'Consultoria / Laudo Técnico'},
+        {value:'acompanhamento',   label:'Acompanhamento de Obra'},
+      ]},
+      tipologia:{label:'Tipologia da obra', obrigatorio:true, ativo:true, opcoes:[
+        {value:'residencial_unifamiliar',   label:'Residencial Unifamiliar (casa)'},
+        {value:'residencial_multifamiliar', label:'Residencial Multifamiliar (prédio)'},
+        {value:'comercial',                label:'Comercial / Corporativo'},
+        {value:'industrial',               label:'Industrial / Galpão'},
+        {value:'muro_fundacao',            label:'Muro / Fundação / Contenção'},
+        {value:'reforma',                  label:'Reforma / Ampliação'},
+        {value:'outro',                    label:'Outro'},
+      ]},
+      area:     {label:'Área aproximada (m²)', obrigatorio:true, ativo:true, opcoes:[
+        {value:'ate100',   label:'Até 100 m²'},
+        {value:'100a300',  label:'100 — 300 m²'},
+        {value:'300a600',  label:'300 — 600 m²'},
+        {value:'acima600', label:'Acima de 600 m²'},
+      ]},
+      cidade:   {label:'Cidade / Estado da obra', placeholder:'Ex: Russas — CE', obrigatorio:true, ativo:true},
     }
   },
-  step3: {
-    label: '03 / 03 — Detalhes e Prazo',
-    campos: {
-      prazo: { label:'Urgência / Prazo esperado', obrigatorio:true, ativo:true,
-        opcoes:[
-          {value:'urgente',  label:'Urgente',  sub:'Preciso em até 2 semanas'},
-          {value:'normal',   label:'Normal',   sub:'Entre 2 semanas e 2 meses'},
-          {value:'flexivel', label:'Flexível', sub:'Sem prazo definido ainda'},
-        ]
-      },
-      tem_arq: { label:'Tem projeto arquitetônico?', obrigatorio:true, ativo:true,
-        opcoes:[
-          {value:'sim', label:'Sim'},
-          {value:'nao', label:'Não ainda'},
-        ]
-      },
-      descricao: { label:'Descreva brevemente o projeto', placeholder:'Ex: Casa térrea com laje, 3 quartos, terreno em declive…', obrigatorio:false, ativo:true },
-      como_conheceu: { label:'Como me encontrou?', obrigatorio:true, ativo:true,
-        opcoes:[
-          {value:'instagram', label:'Instagram'},
-          {value:'tiktok',    label:'TikTok'},
-          {value:'indicacao', label:'Indicação'},
-          {value:'linkedin',  label:'LinkedIn'},
-          {value:'google',    label:'Google'},
-          {value:'outro',     label:'Outro'},
-        ]
-      },
+  step3:{
+    label:'03 / 03 — Detalhes e Prazo',
+    campos:{
+      prazo:        {label:'Urgência / Prazo esperado', obrigatorio:true, ativo:true, opcoes:[
+        {value:'urgente',  label:'Urgente',  sub:'Preciso em até 2 semanas'},
+        {value:'normal',   label:'Normal',   sub:'Entre 2 semanas e 2 meses'},
+        {value:'flexivel', label:'Flexível', sub:'Sem prazo definido ainda'},
+      ]},
+      tem_arq:      {label:'Tem projeto arquitetônico?', obrigatorio:true, ativo:true, opcoes:[
+        {value:'sim', label:'Sim'},
+        {value:'nao', label:'Não ainda'},
+      ]},
+      descricao:    {label:'Descreva brevemente o projeto', placeholder:'Ex: Casa térrea com laje, 3 quartos…', obrigatorio:false, ativo:true},
+      como_conheceu:{label:'Como me encontrou?', obrigatorio:true, ativo:true, opcoes:[
+        {value:'instagram', label:'Instagram'},
+        {value:'tiktok',    label:'TikTok'},
+        {value:'indicacao', label:'Indicação'},
+        {value:'linkedin',  label:'LinkedIn'},
+        {value:'google',    label:'Google'},
+        {value:'outro',     label:'Outro'},
+      ]},
     }
   },
-  rodape: 'Emanuel Freire Gonçalves · Engenheiro Civil · CREA/CE',
-  sucesso: {
-    titulo: 'RECEBIDO!',
-    texto: 'Sua solicitação foi registrada. Vou analisar os detalhes e entrar em contato pelo WhatsApp em até 72h úteis.',
-  },
-  whatsapp: '5588999040110',
+  rodape:'Emanuel Freire Gonçalves · Engenheiro Civil · CREA/CE',
+  sucesso:{titulo:'RECEBIDO!', texto:'Sua solicitação foi registrada. Vou analisar os detalhes e entrar em contato pelo WhatsApp em até 72h úteis.'},
+  whatsapp:'5588999040110',
 };
 
 let formConfig = null;
+let formAba = 'header';
 
 async function loadFormConfig(){
   try {
     const snap = await getDoc(doc(db,'configuracoes','formulario'));
-    formConfig = snap.exists() ? {...FORM_DEFAULT, ...snap.data()} : JSON.parse(JSON.stringify(FORM_DEFAULT));
-  } catch(e) {
-    formConfig = JSON.parse(JSON.stringify(FORM_DEFAULT));
-  }
+    formConfig = snap.exists() ? deepMerge(JSON.parse(JSON.stringify(FORM_DEFAULT)), snap.data()) : JSON.parse(JSON.stringify(FORM_DEFAULT));
+  } catch(e) { formConfig = JSON.parse(JSON.stringify(FORM_DEFAULT)); }
 }
 
-async function saveFormConfig(cfg){
-  await fsSet('configuracoes','formulario', cfg);
-  formConfig = cfg;
+function deepMerge(base, over){
+  for(const k in over){ if(over[k]&&typeof over[k]==='object'&&!Array.isArray(over[k])&&base[k]&&typeof base[k]==='object') deepMerge(base[k],over[k]); else base[k]=over[k]; }
+  return base;
 }
 
-let formAba = 'header';
+async function saveFormConfig(cfg){ await fsSet('configuracoes','formulario', cfg); formConfig=cfg; }
 
+// ── GitHub helpers ──
+async function getGithubToken(){
+  try { const s=await getDoc(doc(db,'configuracoes','github')); return s.exists()?s.data().token||'':''; } catch{ return ''; }
+}
+async function saveGithubToken(token){ await fsSet('configuracoes','github',{token}); }
 
-let formDirty = false;
-
-window.setFormAba = (aba) => { formAba = aba; renderFormulario(); };
-
-window.addOpcao = (stepKey, campoKey) => {
-  coletarFormConfig();
-  const step = formConfig[stepKey];
-  if(!step||!step.campos[campoKey]) return;
-  const campo = step.campos[campoKey];
-  const hasSub = campo.opcoes.some(o=>o.sub!==undefined);
-  campo.opcoes.push(hasSub ? {value:'novo',label:'Nova opção',sub:''} : {value:'novo',label:'Nova opção'});
-  renderFormulario();
-};
-
-window.removeOpcao = (stepKey, campoKey, idx) => {
-  coletarFormConfig();
-  const step = formConfig[stepKey];
-  if(!step||!step.campos[campoKey]) return;
-  step.campos[campoKey].opcoes.splice(idx,1);
-  renderFormulario();
-};
-
-function coletarFormConfig(){
-  if(!formConfig) return;
-  const cfg = JSON.parse(JSON.stringify(formConfig));
-  const g = (id) => { const el=document.getElementById('ff-'+id); return el?el.value:null; };
-
-  // header
-  if(g('badge')!==null){
-    cfg.header.badge           = g('badge')||'';
-    cfg.header.titulo1         = g('titulo1')||'';
-    cfg.header.titulo2         = g('titulo2')||'';
-    cfg.header.subtitulo       = g('subtitulo')||'';
-    cfg.header.subtituloDestaque = g('subtituloDestaque')||'';
-    cfg.whatsapp               = g('whatsapp')||'';
-    cfg.rodape                 = g('rodape')||'';
-  }
-  // sucesso
-  if(g('sucesso-titulo')!==null){
-    cfg.sucesso.titulo = g('sucesso-titulo')||'';
-    const ta = document.getElementById('ff-sucesso-texto');
-    if(ta) cfg.sucesso.texto = ta.value;
-  }
-  // steps
-  ['step1','step2','step3'].forEach(sk=>{
-    const stepLabel = document.getElementById(`ff-steplabel-${sk}`);
-    if(stepLabel) cfg[sk].label = stepLabel.value;
-    Object.keys(cfg[sk].campos).forEach(ck=>{
-      const campo = cfg[sk].campos[ck];
-      const labelEl = document.getElementById(`ff-label-${sk}-${ck}`);
-      if(labelEl) campo.label = labelEl.value;
-      const phEl = document.getElementById(`ff-ph-${sk}-${ck}`);
-      if(phEl) campo.placeholder = phEl.value;
-      const ativoEl = document.getElementById(`ff-ativo-${sk}-${ck}`);
-      if(ativoEl) campo.ativo = ativoEl.checked;
-      if(campo.opcoes){
-        campo.opcoes.forEach((op,i)=>{
-          const lEl = document.getElementById(`ffo-label-${sk}-${ck}-${i}`);
-          if(lEl) op.label = lEl.value;
-          const vEl = document.getElementById(`ffo-value-${sk}-${ck}-${i}`);
-          if(vEl) op.value = vEl.value;
-          const sEl = document.getElementById(`ffo-sub-${sk}-${ck}-${i}`);
-          if(sEl) op.sub = sEl.value;
-        });
-      }
-    });
+async function githubPublicar(htmlContent, token){
+  const api = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+  // 1. Get current SHA
+  const r1 = await fetch(api+'?ref='+GITHUB_BRANCH, {headers:{Authorization:`token ${token}`,'Accept':'application/vnd.github.v3+json'}});
+  if(!r1.ok) throw new Error(`GitHub: ${r1.status} — verifique o token e o repositório`);
+  const data1 = await r1.json();
+  const sha = data1.sha;
+  // 2. Push update
+  const body = JSON.stringify({
+    message:'[CRM] Atualizar formulário de contato',
+    content: btoa(unescape(encodeURIComponent(htmlContent))),
+    sha,
+    branch: GITHUB_BRANCH,
   });
-  formConfig = cfg;
+  const r2 = await fetch(api, {method:'PUT', headers:{Authorization:`token ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'}, body});
+  if(!r2.ok){ const e=await r2.json(); throw new Error(e.message||`Erro ${r2.status}`); }
+  return await r2.json();
 }
 
-window.salvarFormulario = async () => {
-  coletarFormConfig();
-  const btn = document.getElementById('salvarFormBtn');
-  if(btn){ btn.disabled=true; btn.textContent='Salvando...'; }
-  try {
-    await saveFormConfig(formConfig);
-    const msg = document.getElementById('formMsg');
-    if(msg){ msg.style.color='var(--success)'; msg.textContent='✓ Salvo com sucesso!'; setTimeout(()=>{msg.textContent='';},3000); }
-    formDirty = false;
-  } catch(e) {
-    const msg = document.getElementById('formMsg');
-    if(msg){ msg.style.color='var(--danger)'; msg.textContent='Erro ao salvar: '+e.message; }
-  } finally {
-    if(btn){ btn.disabled=false; btn.textContent='💾 Salvar alterações'; }
-  }
-};
-
-window.resetarFormulario = () => {
-  if(!confirm('Restaurar todas as configurações do formulário ao padrão original?')) return;
-  formConfig = JSON.parse(JSON.stringify(FORM_DEFAULT));
-  renderFormulario();
-};
-
-window.copiarCodigo = () => {
-  coletarFormConfig();
-  const code = gerarCodigoFormulario(formConfig);
-  navigator.clipboard.writeText(code).then(()=>{
-    const btn = event.target;
-    btn.textContent='✓ Copiado!';
-    setTimeout(()=>{ btn.textContent='📋 Copiar tudo'; },2500);
-  });
-};
-
-function gerarCodigoFormulario(cfg){
+// ── Code generator ──
+function gerarCodigoFormulario(cfg, originalHtml){
   const h = cfg.header;
   const s1 = cfg.step1.campos;
   const s2 = cfg.step2.campos;
   const s3 = cfg.step3.campos;
 
-  const radioGroup = (name, opcoes, idError) => opcoes.map(op=>`
+  const radioGroup = (name, opcoes, idError) =>
+    opcoes.map(op=>`
       <label class="radio-card">
         <input type="radio" name="${name}" value="${op.value}">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">${op.label}</div>
-            ${op.sub?`<div class="card-sub">${op.sub}</div>`:''}
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">${op.label}</div>${op.sub?`<div class="card-sub">${op.sub}</div>`:''}
+        </div></div>
       </label>`).join('')+`\n    <div class="error-msg" id="${idError}">Selecione uma opção.</div>`;
 
-  const selectOpcoes = (opcoes) => opcoes.map(op=>`<option value="${op.value}">${op.label}</option>`).join('');
+  const selectOpcoes = opcoes => opcoes.map(op=>`<option value="${op.value}">${op.label}</option>`).join('\n          ');
 
-  return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emanuel Freire | Engenheiro Estrutural</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://www.google.com/recaptcha/api.js?render=6LcsAY0sAAAAALS3lGcBGqwrPoleVfy9D0nKSrsa" async defer><\/script>
-<!-- Cole aqui o restante do bloco <style> original sem alterações -->
-</head>
-<body>
-<div class="container">
+  const newBody = `<div class="container">
 
   <div class="header">
     <div class="badge">${h.badge}</div>
@@ -2576,62 +2494,51 @@ function gerarCodigoFormulario(cfg){
       <div class="step-label">${cfg.step1.label}</div>
       <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off"
         style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" aria-hidden="true">
-
       ${s1.nome.ativo?`<div class="field" id="f-nome">
         <label>${s1.nome.label} <span class="req">*</span></label>
         <input type="text" id="nome" placeholder="${s1.nome.placeholder||''}" autocomplete="name">
         <div class="error-msg">Por favor, informe seu nome.</div>
       </div>`:''}
-
       ${s1.tipo.ativo?`<div class="field" id="f-tipo">
         <label>${s1.tipo.label} <span class="req">*</span></label>
         <div class="radio-group">${radioGroup('tipo', s1.tipo.opcoes, 'tipo-error')}</div>
       </div>`:''}
-
       ${s1.whatsapp.ativo?`<div class="field" id="f-whatsapp">
         <label>${s1.whatsapp.label} <span class="req">*</span></label>
         <input type="tel" id="whatsapp" placeholder="${s1.whatsapp.placeholder||''}" autocomplete="tel">
         <div class="error-msg">Informe um número válido.</div>
       </div>`:''}
-
       ${s1.email.ativo?`<div class="field" id="f-email">
         <label>${s1.email.label} <span class="req">*</span></label>
         <input type="email" id="email" placeholder="${s1.email.placeholder||''}" autocomplete="email">
         <div class="error-msg">Informe um e-mail válido.</div>
       </div>`:''}
-
       <button class="btn-next" id="next1">PRÓXIMO →</button>
     </div>
 
     <!-- STEP 2 -->
     <div class="step" id="step2">
       <div class="step-label">${cfg.step2.label}</div>
-
       ${s2.servico.ativo?`<div class="field" id="f-servico">
         <label>${s2.servico.label} <span class="req">*</span></label>
         <div class="radio-group">${radioGroup('servico', s2.servico.opcoes, 'servico-error')}</div>
       </div>`:''}
-
       ${s2.tipologia.ativo?`<div class="field" id="f-tipologia">
         <label>${s2.tipologia.label} <span class="req">*</span></label>
-        <select id="tipologia">
-          <option value="">Selecione...</option>
+        <select id="tipologia"><option value="">Selecione...</option>
           ${selectOpcoes(s2.tipologia.opcoes)}
         </select>
         <div class="error-msg">Selecione a tipologia.</div>
       </div>`:''}
-
       ${s2.area.ativo?`<div class="field" id="f-area">
         <label>${s2.area.label} <span class="req">*</span></label>
         <div class="radio-group" style="grid-template-columns:1fr 1fr">${radioGroup('area', s2.area.opcoes, 'area-error')}</div>
       </div>`:''}
-
       ${s2.cidade.ativo?`<div class="field" id="f-cidade">
         <label>${s2.cidade.label} <span class="req">*</span></label>
         <input type="text" id="cidade" placeholder="${s2.cidade.placeholder||''}">
         <div class="error-msg">Informe a cidade da obra.</div>
       </div>`:''}
-
       <button class="btn-next" id="next2">PRÓXIMO →</button>
       <button class="btn-back" id="back2">← voltar</button>
     </div>
@@ -2639,31 +2546,25 @@ function gerarCodigoFormulario(cfg){
     <!-- STEP 3 -->
     <div class="step" id="step3">
       <div class="step-label">${cfg.step3.label}</div>
-
       ${s3.prazo.ativo?`<div class="field" id="f-prazo">
         <label>${s3.prazo.label} <span class="req">*</span></label>
         <div class="radio-group">${radioGroup('prazo', s3.prazo.opcoes, 'prazo-error')}</div>
       </div>`:''}
-
       ${s3.tem_arq.ativo?`<div class="field" id="f-tem-arq">
         <label>${s3.tem_arq.label} <span class="req">*</span></label>
         <div class="radio-group" style="grid-template-columns:1fr 1fr">${radioGroup('tem_arq', s3.tem_arq.opcoes, 'tem_arq-error')}</div>
       </div>`:''}
-
       ${s3.descricao.ativo?`<div class="field" id="f-descricao">
         <label>${s3.descricao.label}</label>
         <textarea id="descricao" placeholder="${s3.descricao.placeholder||''}"></textarea>
       </div>`:''}
-
       ${s3.como_conheceu.ativo?`<div class="field" id="f-como_conheceu">
         <label>${s3.como_conheceu.label} <span class="req">*</span></label>
-        <select id="como_conheceu">
-          <option value="">Selecione...</option>
+        <select id="como_conheceu"><option value="">Selecione...</option>
           ${selectOpcoes(s3.como_conheceu.opcoes)}
         </select>
         <div class="error-msg">Selecione como me encontrou.</div>
       </div>`:''}
-
       <button class="btn-next" id="submitBtn">ENVIAR SOLICITAÇÃO ✓</button>
       <button class="btn-back" id="back3">← voltar</button>
     </div>
@@ -2673,17 +2574,124 @@ function gerarCodigoFormulario(cfg){
       <div class="success-icon">✓</div>
       <h2>${cfg.sucesso.titulo}</h2>
       <p>${cfg.sucesso.texto}</p>
-      <a href="#" class="whatsapp-btn" id="whatsappLink">FALAR NO WHATSAPP</a>
+      <a href="#" class="whatsapp-btn" id="whatsappLink">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        FALAR NO WHATSAPP
+      </a>
     </div>
-
   </div>
 
   <div class="footer-note">${cfg.rodape}</div>
-</div>
-<!-- Cole aqui o bloco <script> original sem alterações -->
-</body>
-</html>`;
+</div>`;
+
+  if(!originalHtml) return newBody;
+  // Replace <body>…</body> keeping <head> and <script> intact
+  const bodyStart = originalHtml.indexOf('<body>');
+  const bodyEnd   = originalHtml.lastIndexOf('</body>');
+  if(bodyStart===-1||bodyEnd===-1) return originalHtml;
+  return originalHtml.slice(0, bodyStart+6) + '\n' + newBody + '\n' + originalHtml.slice(bodyEnd);
 }
+
+// ── Collect current form state from DOM ──
+function coletarFormConfig(){
+  if(!formConfig) return;
+  const cfg = JSON.parse(JSON.stringify(formConfig));
+  const g = id => { const el=document.getElementById('ff-'+id); return el?el.value:null; };
+  if(g('badge')!==null){
+    cfg.header.badge             = g('badge')||'';
+    cfg.header.titulo1           = g('titulo1')||'';
+    cfg.header.titulo2           = g('titulo2')||'';
+    cfg.header.subtitulo         = g('subtitulo')||'';
+    cfg.header.subtituloDestaque = g('subtituloDestaque')||'';
+    cfg.whatsapp                 = g('whatsapp')||'';
+    cfg.rodape                   = g('rodape')||'';
+  }
+  if(g('sucesso-titulo')!==null){
+    cfg.sucesso.titulo = g('sucesso-titulo')||'';
+    const ta=document.getElementById('ff-sucesso-texto'); if(ta) cfg.sucesso.texto=ta.value;
+  }
+  ['step1','step2','step3'].forEach(sk=>{
+    const sl=document.getElementById(`ff-steplabel-${sk}`); if(sl) cfg[sk].label=sl.value;
+    Object.keys(cfg[sk].campos).forEach(ck=>{
+      const campo=cfg[sk].campos[ck];
+      const lEl=document.getElementById(`ff-label-${sk}-${ck}`);   if(lEl) campo.label=lEl.value;
+      const pEl=document.getElementById(`ff-ph-${sk}-${ck}`);      if(pEl) campo.placeholder=pEl.value;
+      const aEl=document.getElementById(`ff-ativo-${sk}-${ck}`);   if(aEl) campo.ativo=aEl.checked;
+      if(campo.opcoes) campo.opcoes.forEach((op,i)=>{
+        const lO=document.getElementById(`ffo-label-${sk}-${ck}-${i}`); if(lO) op.label=lO.value;
+        const vO=document.getElementById(`ffo-value-${sk}-${ck}-${i}`); if(vO) op.value=vO.value;
+        const sO=document.getElementById(`ffo-sub-${sk}-${ck}-${i}`);   if(sO) op.sub=sO.value;
+      });
+    });
+  });
+  formConfig=cfg;
+}
+
+window.setFormAba = aba => { coletarFormConfig(); formAba=aba; renderFormulario(); };
+
+window.addOpcao = (sk, ck) => {
+  coletarFormConfig();
+  const campo=formConfig[sk]?.campos[ck]; if(!campo) return;
+  const hasSub=campo.opcoes.some(o=>o.sub!==undefined);
+  campo.opcoes.push(hasSub?{value:'novo',label:'Nova opção',sub:''}:{value:'novo',label:'Nova opção'});
+  renderFormulario();
+};
+window.removeOpcao = (sk, ck, i) => {
+  coletarFormConfig();
+  formConfig[sk]?.campos[ck]?.opcoes.splice(i,1);
+  renderFormulario();
+};
+
+window.salvarFormulario = async () => {
+  coletarFormConfig();
+  const btn=document.getElementById('salvarFormBtn');
+  if(btn){btn.disabled=true;btn.textContent='Salvando...';}
+  try {
+    await saveFormConfig(formConfig);
+    mostrarMsgForm('✓ Salvo no CRM!', 'success');
+  } catch(e){ mostrarMsgForm('Erro: '+e.message,'danger'); }
+  finally{ if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} }
+};
+
+window.publicarGitHub = async () => {
+  coletarFormConfig();
+  const btn=document.getElementById('publicarBtn');
+  if(btn){btn.disabled=true;btn.textContent='Publicando...';}
+  try {
+    // 1. Salva config no Firestore
+    await saveFormConfig(formConfig);
+    // 2. Busca token
+    const token=await getGithubToken();
+    if(!token){ mostrarMsgForm('⚠ Configure o GitHub Token nas Configurações → GitHub.','danger'); if(btn){btn.disabled=false;btn.textContent='🚀 Publicar no GitHub';} return; }
+    // 3. Busca index.html atual do GitHub para preservar <head> e <script>
+    const api=`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}?ref=${GITHUB_BRANCH}`;
+    const r=await fetch(api,{headers:{Authorization:`token ${token}`,'Accept':'application/vnd.github.v3+json'}});
+    if(!r.ok) throw new Error(`Repositório não encontrado (${r.status})`);
+    const data=await r.json();
+    const originalHtml=decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+    // 4. Gera HTML novo mantendo head e scripts
+    const novoHtml=gerarCodigoFormulario(formConfig, originalHtml);
+    // 5. Publica
+    await githubPublicar(novoHtml, token);
+    mostrarMsgForm('✅ Publicado! O site será atualizado em alguns segundos.','success');
+  } catch(e){ mostrarMsgForm('Erro: '+e.message,'danger'); }
+  finally{ if(btn){btn.disabled=false;btn.textContent='🚀 Publicar no GitHub';} }
+};
+
+window.resetarFormulario = () => {
+  if(!confirm('Restaurar configurações padrão do formulário?')) return;
+  formConfig=JSON.parse(JSON.stringify(FORM_DEFAULT));
+  renderFormulario();
+};
+
+function mostrarMsgForm(txt, tipo){
+  const el=document.getElementById('formMsg');
+  if(!el) return;
+  el.style.color=tipo==='success'?'var(--success)':'var(--danger)';
+  el.textContent=txt;
+  if(tipo==='success') setTimeout(()=>{el.textContent='';},4000);
+}
+
 
 function renderFormulario(){
   if(currentUserData?.role!=='admin'){
@@ -2692,136 +2700,173 @@ function renderFormulario(){
   }
   if(!formConfig){ loadFormConfig().then(()=>renderFormulario()); return; }
 
-  const cfg = formConfig;
-  const abas = [
-    {key:'header',  label:'Cabeçalho'},
-    {key:'step1',   label:'Etapa 1'},
-    {key:'step2',   label:'Etapa 2'},
-    {key:'step3',   label:'Etapa 3'},
-    {key:'sucesso', label:'Sucesso'},
-    {key:'codigo',  label:'📋 Código'},
+  const cfg=formConfig;
+  const abas=[
+    {key:'header', label:'Cabeçalho'},
+    {key:'step1',  label:'Etapa 1'},
+    {key:'step2',  label:'Etapa 2'},
+    {key:'step3',  label:'Etapa 3'},
+    {key:'sucesso',label:'Sucesso'},
   ];
 
-  const fieldRow = (id, lbl, val, type='text', hint='') => `
+  const fInput=(id,lbl,val,hint='')=>`
     <div class="f-group">
-      <label>${lbl}${hint?`<span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--muted)"> — ${hint}</span>`:''}</label>
-      <input type="${type}" id="ff-${id}" value="${(val||'').replace(/"/g,'&quot;')}" oninput="formDirty=true">
+      <label>${lbl}${hint?` <span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--muted);font-size:10px">${hint}</span>`:''}</label>
+      <input type="text" id="ff-${id}" value="${(val||'').replace(/"/g,'&quot;')}" oninput="window._formDirty=true"
+        style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'">
     </div>`;
 
-  const opcaoRow = (stepKey, campoKey, i, op) => `
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
-      <input type="text" value="${(op.label||'').replace(/"/g,'&quot;')}" placeholder="Rótulo"
-        style="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:13px;padding:7px 10px;outline:none"
-        oninput="formDirty=true" id="ffo-label-${stepKey}-${campoKey}-${i}">
-      ${op.sub!==undefined?`<input type="text" value="${(op.sub||'').replace(/"/g,'&quot;')}" placeholder="Descrição"
-        style="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:13px;padding:7px 10px;outline:none"
-        oninput="formDirty=true" id="ffo-sub-${stepKey}-${campoKey}-${i}">`:
-      `<input type="text" value="${(op.value||'').replace(/"/g,'&quot;')}" placeholder="valor_interno"
-        style="width:130px;background:var(--bg);border:1px solid var(--border2);color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;padding:7px 10px;outline:none"
-        oninput="formDirty=true" id="ffo-value-${stepKey}-${campoKey}-${i}">`}
-      <button onclick="removeOpcao('${stepKey}','${campoKey}',${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:4px 6px;flex-shrink:0">✕</button>
+  const opcaoRow=(sk,ck,i,op)=>`
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+      <input id="ffo-label-${sk}-${ck}-${i}" value="${(op.label||'').replace(/"/g,'&quot;')}" placeholder="Rótulo"
+        style="flex:2;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:13px;padding:7px 10px;outline:none" oninput="window._formDirty=true">
+      ${op.sub!==undefined
+        ?`<input id="ffo-sub-${sk}-${ck}-${i}" value="${(op.sub||'').replace(/"/g,'&quot;')}" placeholder="Descrição opcional"
+            style="flex:2;background:var(--bg);border:1px solid var(--border2);color:var(--muted2);font-size:12px;padding:7px 10px;outline:none" oninput="window._formDirty=true">`
+        :`<input id="ffo-value-${sk}-${ck}-${i}" value="${(op.value||'').replace(/"/g,'&quot;')}" placeholder="valor_interno"
+            style="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;padding:7px 10px;outline:none" oninput="window._formDirty=true">`}
+      <button onclick="removeOpcao('${sk}','${ck}',${i})" title="Remover"
+        style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:4px 8px;flex-shrink:0">✕</button>
     </div>`;
 
-  const campoCard = (stepKey, campoKey, campo) => {
-    const hasOpcoes = campo.opcoes !== undefined;
-    return `<div class="card" style="margin-bottom:12px;border-left:2px solid ${campo.ativo?'var(--accent)':'var(--border2)'}">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)">${campoKey}</span>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-          <span style="font-size:11px;color:var(--muted)">Exibir no formulário</span>
-          <input type="checkbox" id="ff-ativo-${stepKey}-${campoKey}" ${campo.ativo?'checked':''} onchange="formDirty=true;this.closest('.card').style.borderLeftColor=this.checked?'var(--accent)':'var(--border2)'" style="accent-color:var(--accent);width:15px;height:15px">
+  const campoCard=(sk,ck,campo)=>`
+    <div class="card" style="margin-bottom:10px;border-left:2px solid ${campo.ativo?'var(--accent)':'var(--border2)'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)">${ck}</span>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none">
+          <span style="font-size:11px;color:var(--muted)">Ativo</span>
+          <input type="checkbox" id="ff-ativo-${sk}-${ck}" ${campo.ativo?'checked':''}
+            onchange="window._formDirty=true;this.closest('.card').style.borderLeftColor=this.checked?'var(--accent)':'var(--border2)'"
+            style="accent-color:var(--accent);width:15px;height:15px">
         </label>
       </div>
-      <div class="f-row" style="margin-bottom:0">
+      <div class="f-row" style="margin-bottom:${campo.opcoes?'12px':'0'}">
         <div class="f-group" style="margin-bottom:0">
-          <label>Rótulo do campo</label>
-          <input type="text" id="ff-label-${stepKey}-${campoKey}" value="${(campo.label||'').replace(/"/g,'&quot;')}"
-            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:10px 12px;outline:none"
-            oninput="formDirty=true">
+          <label>Rótulo</label>
+          <input id="ff-label-${sk}-${ck}" value="${(campo.label||'').replace(/"/g,'&quot;')}"
+            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:9px 12px;outline:none" oninput="window._formDirty=true">
         </div>
         ${campo.placeholder!==undefined?`<div class="f-group" style="margin-bottom:0">
           <label>Placeholder</label>
-          <input type="text" id="ff-ph-${stepKey}-${campoKey}" value="${(campo.placeholder||'').replace(/"/g,'&quot;')}"
-            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:10px 12px;outline:none"
-            oninput="formDirty=true">
+          <input id="ff-ph-${sk}-${ck}" value="${(campo.placeholder||'').replace(/"/g,'&quot;')}"
+            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:9px 12px;outline:none" oninput="window._formDirty=true">
         </div>`:'<div></div>'}
       </div>
-      ${hasOpcoes?`
-      <div style="margin-top:14px">
-        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">
-          Opções ${campo.opcoes.some(o=>o.sub!==undefined)?'(rótulo + descrição)':'(rótulo + valor interno)'}
+      ${campo.opcoes?`
+      <div>
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">
+          Opções ${campo.opcoes.some(o=>o.sub!==undefined)?'· rótulo + descrição':'· rótulo + valor interno'}
         </div>
-        <div id="ffopcoes-${stepKey}-${campoKey}">
-          ${campo.opcoes.map((op,i)=>opcaoRow(stepKey,campoKey,i,op)).join('')}
-        </div>
-        <button onclick="addOpcao('${stepKey}','${campoKey}')" class="btn btn-ghost btn-sm" style="margin-top:4px">+ Adicionar opção</button>
+        ${campo.opcoes.map((op,i)=>opcaoRow(sk,ck,i,op)).join('')}
+        <button onclick="addOpcao('${sk}','${ck}')" class="btn btn-ghost btn-sm" style="margin-top:2px">+ opção</button>
       </div>`:''}
     </div>`;
-  };
 
-  const renderAbaContent = () => {
+  const renderAba=()=>{
     if(formAba==='header') return `
       <div class="card" style="margin-bottom:12px">
-        <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;margin-bottom:16px;text-transform:uppercase">Topo da página</div>
-        ${fieldRow('badge',    'Texto do badge/etiqueta',     cfg.header.badge)}
-        ${fieldRow('titulo1',  'Título linha 1 (grande)',      cfg.header.titulo1)}
-        ${fieldRow('titulo2',  'Título linha 2 (destaque)',    cfg.header.titulo2)}
-        ${fieldRow('subtitulo','Subtítulo',                    cfg.header.subtitulo)}
-        ${fieldRow('subtituloDestaque','Texto em destaque (negrito)', cfg.header.subtituloDestaque)}
-        ${fieldRow('whatsapp', 'Número WhatsApp (somente dígitos)', cfg.whatsapp, 'text', 'ex: 5588999040110')}
-        ${fieldRow('rodape',   'Texto do rodapé',              cfg.rodape)}
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">Cabeçalho da página</div>
+        ${fInput('badge',   'Badge / etiqueta',      cfg.header.badge)}
+        ${fInput('titulo1', 'Título — linha 1',       cfg.header.titulo1)}
+        ${fInput('titulo2', 'Título — linha 2 (cor)', cfg.header.titulo2)}
+        ${fInput('subtitulo',         'Subtítulo',         cfg.header.subtitulo)}
+        ${fInput('subtituloDestaque', 'Texto em negrito',  cfg.header.subtituloDestaque)}
+        ${fInput('whatsapp', 'Número WhatsApp', cfg.whatsapp, '· somente dígitos, ex: 5588999040110')}
+        ${fInput('rodape',  'Rodapé',                cfg.rodape)}
       </div>`;
-
     if(formAba==='sucesso') return `
       <div class="card" style="margin-bottom:12px">
-        <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;margin-bottom:16px;text-transform:uppercase">Tela de confirmação</div>
-        ${fieldRow('sucesso-titulo', 'Título (tela de sucesso)', cfg.sucesso.titulo)}
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">Tela de confirmação</div>
+        ${fInput('sucesso-titulo','Título',cfg.sucesso.titulo)}
         <div class="f-group">
-          <label>Mensagem de confirmação</label>
-          <textarea id="ff-sucesso-texto" rows="3" oninput="formDirty=true"
-            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;outline:none;resize:vertical">${cfg.sucesso.texto||''}</textarea>
+          <label>Mensagem</label>
+          <textarea id="ff-sucesso-texto" rows="3" oninput="window._formDirty=true"
+            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;outline:none;resize:vertical;line-height:1.5">${cfg.sucesso.texto||''}</textarea>
         </div>
       </div>`;
-
-    if(formAba==='codigo') return `
-      <div class="card" style="margin-bottom:12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div>
-            <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Código gerado</div>
-            <div style="font-size:12px;color:var(--muted)">Copie e substitua o conteúdo do seu <strong style="color:var(--text)">index.html</strong>.</div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="copiarCodigo()">📋 Copiar tudo</button>
-        </div>
-        <textarea id="codigoGerado" readonly rows="28" onclick="this.select()"
-          style="width:100%;background:#060810;border:1px solid var(--border2);color:#7ec8a0;font-family:'DM Mono',monospace;font-size:11px;padding:14px;outline:none;resize:vertical;line-height:1.6">${gerarCodigoFormulario(cfg).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
-      </div>`;
-
-    const step = cfg[formAba];
+    const step=cfg[formAba];
     return `
-      <div class="card" style="margin-bottom:12px">
-        <div class="f-group">
+      <div class="card" style="margin-bottom:10px">
+        <div class="f-group" style="margin-bottom:0">
           <label>Rótulo da etapa</label>
-          <input type="text" id="ff-steplabel-${formAba}" value="${(step.label||'').replace(/"/g,'&quot;')}"
-            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:10px 12px;outline:none"
-            oninput="formDirty=true">
+          <input id="ff-steplabel-${formAba}" value="${(step.label||'').replace(/"/g,'&quot;')}"
+            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:9px 12px;outline:none" oninput="window._formDirty=true">
         </div>
       </div>
       ${Object.entries(step.campos).map(([k,c])=>campoCard(formAba,k,c)).join('')}`;
   };
 
-  document.getElementById('mainContent').innerHTML=`<div class="page" style="max-width:780px">
-    <div class="tab-bar" style="margin-bottom:20px">
+  document.getElementById('mainContent').innerHTML=`<div class="page" style="max-width:760px">
+    <div class="info-box" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <strong style="color:var(--text)">Publicação automática</strong> — ao clicar em 🚀 Publicar, o CRM atualiza o
+        <code style="color:var(--accent)">${GITHUB_FILE}</code> no repositório
+        <code style="color:var(--accent)">${GITHUB_REPO}</code> automaticamente.
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="setFormAba('_token')" style="white-space:nowrap;flex-shrink:0">⚙ GitHub Token</button>
+    </div>
+    <div class="tab-bar" style="margin-bottom:16px">
       ${abas.map(a=>`<button class="tab-btn ${formAba===a.key?'active':''}" onclick="setFormAba('${a.key}')">${a.label}</button>`).join('')}
     </div>
-    <div id="formEditorContent">${renderAbaContent()}</div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:4px">
-      ${formAba!=='codigo'?`
-      <button class="btn btn-ghost" onclick="resetarFormulario()">↺ Restaurar padrão</button>
-      <button class="btn btn-primary" id="salvarFormBtn" onclick="salvarFormulario()">💾 Salvar alterações</button>`:''}
-    </div>
+    <div>${formAba==='_token'?renderTokenAba():renderAba()}</div>
+    ${formAba!=='_token'?`
+    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;padding-top:12px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="resetarFormulario()">↺ Padrão</button>
+      <button class="btn btn-ghost" id="salvarFormBtn" onclick="salvarFormulario()">💾 Salvar</button>
+      <button class="btn btn-primary" id="publicarBtn" onclick="publicarGitHub()">🚀 Publicar no GitHub</button>
+    </div>`:''}
     <div id="formMsg" style="text-align:right;font-size:12px;font-family:'DM Mono',monospace;margin-top:8px;min-height:18px"></div>
   </div>`;
 }
+
+function renderTokenAba(){
+  return `<div class="card">
+    <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">GitHub Personal Access Token</div>
+    <div class="info-box" style="margin-bottom:16px">
+      Gere um token em <strong style="color:var(--text)">github.com → Settings → Developer Settings → Personal access tokens → Tokens (classic)</strong>.<br>
+      Marque a permissão <code style="color:var(--accent)">repo</code> (acesso de escrita ao repositório). O token é salvo criptografado no Firestore e nunca fica exposto.
+    </div>
+    <div class="f-group">
+      <label>Token</label>
+      <input type="password" id="ff-github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+        style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:13px;font-family:'DM Mono',monospace;padding:10px 12px;outline:none">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-primary" onclick="salvarGithubToken()">💾 Salvar token</button>
+    </div>
+    <div id="tokenMsg" style="text-align:right;font-size:12px;font-family:'DM Mono',monospace;margin-top:8px;min-height:18px"></div>
+  </div>`;
+}
+
+window.salvarGithubToken = async () => {
+  const el=document.getElementById('ff-github-token');
+  if(!el||!el.value.trim()){ return; }
+  try {
+    await saveGithubToken(el.value.trim());
+    const m=document.getElementById('tokenMsg');
+    if(m){m.style.color='var(--success)';m.textContent='✓ Token salvo!';setTimeout(()=>m.textContent='',3000);}
+    // Carregar token existente para confirmar
+    el.value='';
+    el.placeholder='Token salvo ✓ (oculto por segurança)';
+  } catch(e){
+    const m=document.getElementById('tokenMsg');
+    if(m){m.style.color='var(--danger)';m.textContent='Erro: '+e.message;}
+  }
+};
+
+// Carregar token existente no campo ao abrir aba
+const _origSetFormAba = window.setFormAba;
+window.setFormAba = async aba => {
+  coletarFormConfig();
+  formAba=aba;
+  renderFormulario();
+  if(aba==='_token'){
+    const token=await getGithubToken();
+    const el=document.getElementById('ff-github-token');
+    if(el&&token){ el.placeholder='Token salvo ✓ (oculto por segurança)'; }
+  }
+};
 
 function renderConfiguracoes(){
   if(currentUserData?.role!=='admin'){document.getElementById('mainContent').innerHTML='<div class="empty-state"><div class="empty-state-icon">🔒</div><p>Acesso restrito a administradores.</p></div>';return;}
