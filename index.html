@@ -573,6 +573,12 @@ text-transform: uppercase;
     <div class="error-msg">Informe um número válido.</div>
   </div>
 
+  <div class="field" id="f-email">
+    <label>E-mail <span class="req">*</span></label>
+    <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+    <div class="error-msg">Informe um e-mail válido.</div>
+  </div>
+
   <button class="btn-next" id="next1">PRÓXIMO →</button>
 </div>
 
@@ -831,10 +837,16 @@ text-transform: uppercase;
     clearError('f-whatsapp');
     if (wpp.length < 10) { setError('f-whatsapp'); valid = false; }
 
+    const email = document.getElementById('email').value.trim();
+    clearError('f-email');
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValido) { setError('f-email'); valid = false; }
+
     if (valid) {
       userData.nome = nome;
       userData.tipo = tipo;
       userData.whatsapp = document.getElementById('whatsapp').value.trim();
+      userData.email = email;
       currentStep = 2;
       showStep(2);
     }
@@ -906,6 +918,7 @@ text-transform: uppercase;
       const nl = '%0A';
       const msg = `Olá Emanuel! Preenchi o formulário de contato.${nl}${nl}` +
         `*Nome:* ${userData.nome} ${nl}` +
+        `*E-mail:* ${userData.email} ${nl}` +
         `*Sou:* ${labels.tipo[userData.tipo]} ${nl}` +
         `*Serviço:* ${labels.servico[userData.servico]} ` +
         `*Tipologia:* ${labels.tipologia[userData.tipologia]}${nl}` +
@@ -920,12 +933,12 @@ text-transform: uppercase;
       const waUrl = `https://wa.me/${phone}?text=${msg}`;
       document.getElementById('whatsappLink').href = waUrl;
 
-      // Mostrar tela de sucesso PRIMEIRO
+      // Mostrar tela de sucesso
       document.getElementById('progressBar').style.display = 'none';
       document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       document.getElementById('successScreen').style.display = 'block';
 
-      // Salvar no Firebase em background (sem bloquear a UI)
+      // Salvar lead no Firebase Firestore em background
       (async () => {
         try {
           const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
@@ -952,7 +965,7 @@ text-transform: uppercase;
           });
           console.log('Lead salvo no CRM com sucesso!');
         } catch(e) {
-          console.error('Erro ao salvar lead no Firebase:', e.code, e.message);
+          console.error('Erro ao salvar lead:', e.code, e.message);
         }
       })();
     }
