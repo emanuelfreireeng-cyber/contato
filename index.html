@@ -489,545 +489,232 @@ text-transform: uppercase;
 <body>
 <div class="container">
 
-  <!-- Header -->
-
   <div class="header">
     <div class="badge">Projetos Estruturais</div>
     <h1>SOLICITE<span>SEU PROJETO</span></h1>
-    <p class="subtitle">
-      Preencha o formulário abaixo para que eu possa entender sua demanda.<br>
-      <strong>Responderei em até 72h úteis.</strong>
-    </p>
+    <p class="subtitle">Preencha o formulário abaixo para que eu possa entender sua demanda.<br><strong>Responderei em até 72h úteis...</strong></p>
   </div>
 
   <div class="divider"></div>
 
-  <!-- Form -->
-
   <div class="form" id="formWrapper">
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-seg active" data-step="1"></div>
+      <div class="progress-seg" data-step="2"></div>
+      <div class="progress-seg" data-step="3"></div>
+    </div>
 
-<!-- Progress -->
-<div class="progress-bar" id="progressBar">
-  <div class="progress-seg active" data-step="1"></div>
-  <div class="progress-seg" data-step="2"></div>
-  <div class="progress-seg" data-step="3"></div>
-</div>
-
-<!-- STEP 1: Identificação -->
-<div class="step active" id="step1">
-  <div class="step-label"><span>01</span> / 03 — Identificação</div>
-
-  <!-- Honeypot anti-bot: oculto via CSS, bots preenchem e são bloqueados -->
-  <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off"
-    style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" aria-hidden="true">
-
-  <div class="field" id="f-nome">
-    <label>Seu nome <span class="req">*</span></label>
-    <input type="text" id="nome" placeholder="Nome completo" autocomplete="name">
-    <div class="error-msg">Por favor, informe seu nome.</div>
-  </div>
-
-  <div class="field" id="f-tipo">
-    <label>Você é <span class="req">*</span></label>
-    <div class="radio-group">
+    <!-- STEP 1 -->
+    <div class="step active" id="step1">
+      <div class="step-label">01 / 03 — Identificação</div>
+      <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off"
+        style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" aria-hidden="true">
+      <div class="field" id="f-nome">
+        <label>Seu nome <span class="req">*</span></label>
+        <input type="text" id="nome" placeholder="Nome completo" autocomplete="name">
+        <div class="error-msg">Por favor, informe seu nome.</div>
+      </div>
+      <div class="field" id="f-tipo">
+        <label>Você é <span class="req">*</span></label>
+        <div class="radio-group">
       <label class="radio-card">
         <input type="radio" name="tipo" value="arquiteto">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Arquiteto(a) / Engenheiro(a)</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Arquiteto(a) / Engenheiro(a)</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="tipo" value="construtora">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Construtora / Incorporadora / Escritório</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Construtora / Incorporadora / Escritório</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="tipo" value="proprietario">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Proprietário / Pessoa Física</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Proprietário / Pessoa Física</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="tipo" value="outro">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Outro</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Outro</div>
+        </div></div>
       </label>
+    <div class="error-msg" id="tipo-error">Selecione uma opção.</div></div>
+      </div>
+      <div class="field" id="f-whatsapp">
+        <label>WhatsApp <span class="req">*</span></label>
+        <input type="tel" id="whatsapp" placeholder="(85) 99999-9999" autocomplete="tel">
+        <div class="error-msg">Informe um número válido.</div>
+      </div>
+      <div class="field" id="f-email">
+        <label>E-mail <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+        <div class="error-msg">Informe um e-mail válido.</div>
+      </div>
+      <button class="btn-next" id="next1">PRÓXIMO →</button>
     </div>
-    <div class="error-msg" id="tipo-error">Selecione uma opção.</div>
-  </div>
 
-  <div class="field" id="f-whatsapp">
-    <label>WhatsApp <span class="req">*</span></label>
-    <input type="tel" id="whatsapp" placeholder="(85) 99999-9999" autocomplete="tel">
-    <div class="error-msg">Informe um número válido.</div>
-  </div>
-
-  <div class="field" id="f-email">
-    <label>E-mail <span class="req">*</span></label>
-    <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
-    <div class="error-msg">Informe um e-mail válido.</div>
-  </div>
-
-  <button class="btn-next" id="next1">PRÓXIMO →</button>
-</div>
-
-<!-- STEP 2: Projeto -->
-<div class="step" id="step2">
-  <div class="step-label"><span>02</span> / 03 — Sobre o Projeto</div>
-
-  <div class="field" id="f-servico">
-    <label>Tipo de serviço <span class="req">*</span></label>
-    <div class="radio-group">
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <div class="step-label">02 / 03 — Sobre o Projeto</div>
+      <div class="field" id="f-servico">
+        <label>Tipo de serviço <span class="req">*</span></label>
+        <div class="radio-group">
       <label class="radio-card">
         <input type="radio" name="servico" value="projeto_completo">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Projeto Estrutural Completo</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Projeto Estrutural Completo</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="servico" value="revisao">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Revisão de Projeto</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Revisão de Projeto</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="servico" value="consultoria">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Consultoria / Laudo Técnico</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Consultoria / Laudo Técnico</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="servico" value="acompanhamento">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Acompanhamento de Obra</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Acompanhamento de Obra</div>
+        </div></div>
       </label>
-    </div>
-    <div class="error-msg" id="servico-error">Selecione o tipo de serviço.</div>
-  </div>
-
-  <div class="field" id="f-tipologia">
-    <label>Tipologia da obra <span class="req">*</span></label>
-    <select id="tipologia">
-      <option value="">Selecione...</option>
-      <option value="residencial_unifamiliar">Residencial Unifamiliar (casa)</option>
-      <option value="residencial_multifamiliar">Residencial Multifamiliar (prédio)</option>
-      <option value="comercial">Comercial / Corporativo</option>
-      <option value="industrial">Industrial / Galpão</option>
-      <option value="muro_fundacao">Muro / Fundação / Contenção</option>
-      <option value="reforma">Reforma / Ampliação</option>
-      <option value="outro">Outro</option>
-    </select>
-    <div class="error-msg">Selecione a tipologia.</div>
-  </div>
-
-  <div class="field" id="f-area">
-    <label>Área aproximada (m²) <span class="req">*</span></label>
-    <div class="radio-group" style="grid-template-columns: 1fr 1fr;">
+    <div class="error-msg" id="servico-error">Selecione uma opção.</div></div>
+      </div>
+      <div class="field" id="f-tipologia">
+        <label>Tipologia da obra <span class="req">*</span></label>
+        <select id="tipologia"><option value="">Selecione...</option>
+          <option value="residencial_unifamiliar">Residencial Unifamiliar (casa)</option>
+          <option value="residencial_multifamiliar">Residencial Multifamiliar (prédio)</option>
+          <option value="comercial">Comercial / Corporativo</option>
+          <option value="industrial">Industrial / Galpão</option>
+          <option value="muro_fundacao">Muro / Fundação / Contenção</option>
+          <option value="reforma">Reforma / Ampliação</option>
+          <option value="outro">Outro</option>
+        </select>
+        <div class="error-msg">Selecione a tipologia.</div>
+      </div>
+      <div class="field" id="f-area">
+        <label>Área aproximada (m²) <span class="req">*</span></label>
+        <div class="radio-group" style="grid-template-columns:1fr 1fr">
       <label class="radio-card">
         <input type="radio" name="area" value="ate100">
-        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Até 100 m²</div></div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Até 100 m²</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="area" value="100a300">
-        <div class="card-body"><div class="radio-dot"></div><div class="card-text">100 -- 300 m²</div></div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">100 — 300 m²</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="area" value="300a600">
-        <div class="card-body"><div class="radio-dot"></div><div class="card-text">300 -- 600 m²</div></div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">300 — 600 m²</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="area" value="acima600">
-        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Acima de 600 m²</div></div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Acima de 600 m²</div>
+        </div></div>
       </label>
+    <div class="error-msg" id="area-error">Selecione uma opção.</div></div>
+      </div>
+      <div class="field" id="f-cidade">
+        <label>Cidade / Estado da obra <span class="req">*</span></label>
+        <input type="text" id="cidade" placeholder="Ex: Russas — CE">
+        <div class="error-msg">Informe a cidade da obra.</div>
+      </div>
+      <button class="btn-next" id="next2">PRÓXIMO →</button>
+      <button class="btn-back" id="back2">← voltar</button>
     </div>
-    <div class="error-msg" id="area-error">Selecione a área aproximada.</div>
-  </div>
 
-  <div class="field" id="f-cidade">
-    <label>Cidade / Estado da obra <span class="req">*</span></label>
-    <input type="text" id="cidade" placeholder="Ex: Russas -- CE">
-    <div class="error-msg">Informe a cidade da obra.</div>
-  </div>
-
-  <button class="btn-next" id="next2">PRÓXIMO →</button>
-  <button class="btn-back" id="back2">← voltar</button>
-</div>
-
-<!-- STEP 3: Detalhes -->
-<div class="step" id="step3">
-  <div class="step-label"><span>03</span> / 03 — Detalhes e Prazo</div>
-
-  <div class="field" id="f-prazo">
-    <label>Urgência / Prazo esperado <span class="req">*</span></label>
-    <div class="radio-group">
+    <!-- STEP 3 -->
+    <div class="step" id="step3">
+      <div class="step-label">03 / 03 — Detalhes e Prazo</div>
+      <div class="field" id="f-prazo">
+        <label>Urgência / Prazo esperado <span class="req">*</span></label>
+        <div class="radio-group">
       <label class="radio-card">
         <input type="radio" name="prazo" value="urgente">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Urgente</div>
-            <div class="card-sub">Preciso em até 2 semanas</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Urgente</div><div class="card-sub">Preciso em até 2 semanas</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="prazo" value="normal">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Normal</div>
-            <div class="card-sub">Entre 2 semanas e 2 meses</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Normal</div><div class="card-sub">Entre 2 semanas e 2 meses</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="prazo" value="flexivel">
-        <div class="card-body">
-          <div class="radio-dot"></div>
-          <div>
-            <div class="card-text">Flexível</div>
-            <div class="card-sub">Sem prazo definido ainda</div>
-          </div>
-        </div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Flexível</div><div class="card-sub">Sem prazo definido ainda</div>
+        </div></div>
       </label>
-    </div>
-    <div class="error-msg" id="prazo-error">Selecione o prazo.</div>
-  </div>
-
-  <div class="field" id="f-tem-arq">
-    <label>Tem projeto arquitetônico? <span class="req">*</span></label>
-    <div class="radio-group" style="grid-template-columns: 1fr 1fr;">
+    <div class="error-msg" id="prazo-error">Selecione uma opção.</div></div>
+      </div>
+      <div class="field" id="f-tem-arq">
+        <label>Tem projeto arquitetônico? <span class="req">*</span></label>
+        <div class="radio-group" style="grid-template-columns:1fr 1fr">
       <label class="radio-card">
         <input type="radio" name="tem_arq" value="sim">
-        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Sim</div></div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Sim</div>
+        </div></div>
       </label>
       <label class="radio-card">
         <input type="radio" name="tem_arq" value="nao">
-        <div class="card-body"><div class="radio-dot"></div><div class="card-text">Não ainda</div></div>
+        <div class="card-body"><div class="radio-dot"></div><div>
+          <div class="card-text">Não ainda</div>
+        </div></div>
       </label>
+    <div class="error-msg" id="tem_arq-error">Selecione uma opção.</div></div>
+      </div>
+      <div class="field" id="f-descricao">
+        <label>Descreva brevemente o projeto</label>
+        <textarea id="descricao" placeholder="Ex: Casa térrea com laje, 3 quartos, terreno em declive…"></textarea>
+      </div>
+      <div class="field" id="f-como_conheceu">
+        <label>Como me encontrou? <span class="req">*</span></label>
+        <select id="como_conheceu"><option value="">Selecione...</option>
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+          <option value="indicacao">Indicação</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="google">Google</option>
+          <option value="outro">Outro</option>
+        </select>
+        <div class="error-msg">Selecione como me encontrou.</div>
+      </div>
+      <button class="btn-next" id="submitBtn">ENVIAR SOLICITAÇÃO ✓</button>
+      <button class="btn-back" id="back3">← voltar</button>
     </div>
-    <div class="error-msg" id="tem_arq-error">Selecione uma opção.</div>
+
+    <!-- Sucesso -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✓</div>
+      <h2>RECEBIDO!</h2>
+      <p>Sua solicitação foi registrada. Vou analisar os detalhes e entrar em contato pelo WhatsApp em até 72h úteis.</p>
+      <a href="#" class="whatsapp-btn" id="whatsappLink">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        FALAR NO WHATSAPP
+      </a>
+    </div>
   </div>
-
-  <div class="field" id="f-descricao">
-    <label>Descreva brevemente o projeto</label>
-    <textarea id="descricao" placeholder="Ex: Casa térrea com laje, 3 quartos, terreno em declive, Russas/CE…"></textarea>
-  </div>
-
-  <div class="field" id="f-como_conheceu">
-    <label>Como me encontrou? <span class="req">*</span></label>
-    <select id="como_conheceu">
-      <option value="">Selecione...</option>
-      <option value="instagram">Instagram</option>
-      <option value="tiktok">TikTok</option>
-      <option value="indicacao">Indicação</option>
-      <option value="linkedin">LinkedIn</option>
-      <option value="google">Google</option>
-      <option value="outro">Outro</option>
-    </select>
-    <div class="error-msg">Selecione como me encontrou.</div>
-  </div>
-
-  <button class="btn-next" id="submitBtn">ENVIAR SOLICITAÇÃO ✓</button>
-  <button class="btn-back" id="back3">← voltar</button>
-</div>
-
-<!-- Success -->
-<div class="success-screen" id="successScreen">
-  <div class="success-icon">✓</div>
-  <h2>RECEBIDO!</h2>
-  <p>Sua solicitação foi registrada. Vou analisar os detalhes e entrar em contato pelo WhatsApp em até 72h úteis.</p>
-  <a href="#" class="whatsapp-btn" id="whatsappLink">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    FALAR NO WHATSAPP
-  </a>
-</div>
-
-  </div><!-- /form -->
 
   <div class="footer-note">Emanuel Freire Gonçalves · Engenheiro Civil · CREA/CE</div>
-
 </div>
-
-<script>
-  // ── SEGURANÇA ──
-  const RECAPTCHA_SITE_KEY = '6LcsAY0sAAAAALS3lGcBGqwrPoleVfy9D0nKSrsa'; // substitua pela chave do google.com/recaptcha/admin
-  let submitCount = 0;
-  const MAX_SUBMITS = 3; // máx envios por sessão
-
-  let currentStep = 1;
-  const totalSteps = 3;
-  const userData = {};
-
-  // Progress bar
-  function updateProgress(step) {
-    document.querySelectorAll('.progress-seg').forEach((seg, i) => {
-      seg.classList.remove('done', 'active');
-      if (i + 1 < step) seg.classList.add('done');
-      if (i + 1 === step) seg.classList.add('active');
-    });
-  }
-
-  function showStep(step) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById('step' + step);
-    if (el) el.classList.add('active');
-    updateProgress(step);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // Validation helpers
-  function getRadioVal(name) {
-    const checked = document.querySelector(`input[name="${name}"]:checked`);
-    return checked ? checked.value : '';
-  }
-
-  function clearError(fieldId) {
-    const f = document.getElementById(fieldId);
-    if (f) f.classList.remove('has-error');
-  }
-
-  function setError(fieldId) {
-    const f = document.getElementById(fieldId);
-    if (f) f.classList.add('has-error');
-    return false;
-  }
-
-  function showRadioError(id, show) {
-    const el = document.getElementById(id);
-    if (el) el.style.display = show ? 'block' : 'none';
-  }
-
-  // Step 1 validation
-  document.getElementById('next1').addEventListener('click', () => {
-    let valid = true;
-
-    const nome = document.getElementById('nome').value.trim();
-    clearError('f-nome');
-    if (!nome) { setError('f-nome'); valid = false; }
-
-    const tipo = getRadioVal('tipo');
-    showRadioError('tipo-error', !tipo);
-    if (!tipo) valid = false;
-
-    const wpp = document.getElementById('whatsapp').value.replace(/\D/g, '');
-    clearError('f-whatsapp');
-    if (wpp.length < 10) { setError('f-whatsapp'); valid = false; }
-
-    const emailVal = document.getElementById('email').value.trim();
-    clearError('f-email');
-    if (!emailVal || !/^[^@]+@[^@]+\.[^@]+$/.test(emailVal)) { setError('f-email'); valid = false; }
-
-    if (valid) {
-      userData.nome = nome;
-      userData.tipo = tipo;
-      userData.whatsapp = document.getElementById('whatsapp').value.trim();
-      userData.email = emailVal;
-      currentStep = 2;
-      showStep(2);
-    }
-  });
-
-  // Step 2 validation
-  document.getElementById('next2').addEventListener('click', () => {
-    let valid = true;
-
-    const servico = getRadioVal('servico');
-    showRadioError('servico-error', !servico);
-    if (!servico) valid = false;
-
-    const tipologia = document.getElementById('tipologia').value;
-    clearError('f-tipologia');
-    if (!tipologia) { setError('f-tipologia'); valid = false; }
-
-    const area = getRadioVal('area');
-    showRadioError('area-error', !area);
-    if (!area) valid = false;
-
-    const cidade = document.getElementById('cidade').value.trim();
-    clearError('f-cidade');
-    if (!cidade) { setError('f-cidade'); valid = false; }
-
-    if (valid) {
-      userData.servico = servico;
-      userData.tipologia = tipologia;
-      userData.area = area;
-      userData.cidade = cidade;
-      currentStep = 3;
-      showStep(3);
-    }
-  });
-
-  // Step 3 validation + submit
-  document.getElementById('submitBtn').addEventListener('click', async () => {
-    let valid = true;
-
-    const prazo = getRadioVal('prazo');
-    showRadioError('prazo-error', !prazo);
-    if (!prazo) valid = false;
-
-    const tem_arq = getRadioVal('tem_arq');
-    showRadioError('tem_arq-error', !tem_arq);
-    if (!tem_arq) valid = false;
-
-    const como = document.getElementById('como_conheceu').value;
-    clearError('f-como_conheceu');
-    if (!como) { setError('f-como_conheceu'); valid = false; }
-
-    if (valid) {
-      // ── Verificação anti-spam ──
-
-      // 1. Honeypot: se bot preencheu o campo oculto, bloquear silenciosamente
-      if (document.getElementById('hp-website').value) {
-        console.warn('Bot detectado (honeypot)');
-        document.getElementById('progressBar').style.display = 'none';
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById('successScreen').style.display = 'block';
-        return; // não salva no Firebase
-      }
-
-      // 2. Rate limiting: bloquear após MAX_SUBMITS envios na mesma sessão
-      submitCount++;
-      if (submitCount > MAX_SUBMITS) {
-        alert('Muitas tentativas. Aguarde alguns minutos.');
-        return;
-      }
-
-      userData.prazo = prazo;
-      userData.tem_arq = tem_arq;
-      userData.descricao = document.getElementById('descricao').value.trim();
-      userData.como_conheceu = como;
-
-      // Build WhatsApp message
-      const labels = {
-        tipo: { arquiteto: 'Arquiteto(a)', construtora: 'Construtora/Incorporadora', proprietario: 'Proprietário/Pessoa Física', outro: 'Outro' },
-        servico: { projeto_completo: 'Projeto Estrutural Completo', revisao: 'Revisão de Projeto', consultoria: 'Consultoria/Laudo', acompanhamento: 'Acompanhamento de Obra' },
-        tipologia: { residencial_unifamiliar: 'Residencial Unifamiliar', residencial_multifamiliar: 'Residencial Multifamiliar', comercial: 'Comercial', industrial: 'Industrial/Galpão', muro_fundacao: 'Muro/Fundação/Contenção', reforma: 'Reforma/Ampliação', outro: 'Outro' },
-        area: { ate100: 'Até 100 m²', '100a300': '100--300 m²', '300a600': '300--600 m²', acima600: 'Acima de 600 m²' },
-        prazo: { urgente: 'Urgente (até 2 semanas)', normal: 'Normal (2 sem -- 2 meses)', flexivel: 'Flexível' },
-        tem_arq: { sim: 'Sim', nao: 'Não ainda' },
-        como_conheceu: { instagram: 'Instagram', tiktok: 'TikTok', indicacao: 'Indicação', linkedin: 'LinkedIn', google: 'Google', outro: 'Outro' }
-      };
-
-      const nl = '%0A';
-      const msg = `Olá Emanuel! Preenchi o formulário de contato.${nl}${nl}` +
-        `*Nome:* ${userData.nome} ${nl}` +
-        `*Sou:* ${labels.tipo[userData.tipo]} ${nl}` +
-        `*Serviço:* ${labels.servico[userData.servico]} ` +
-        `*Tipologia:* ${labels.tipologia[userData.tipologia]}${nl}` +
-        `*Área:* ${labels.area[userData.area]} ${nl}` +
-        `*Cidade:* ${userData.cidade} ${nl}` +
-        `*Prazo:* ${labels.prazo[userData.prazo]}${nl}` +
-        `*Tem projeto arq.:* ${labels.tem_arq[userData.tem_arq]} ${nl}` +
-        `*Como me encontrou:* ${labels.como_conheceu[userData.como_conheceu]}` +
-        (userData.descricao ? `${nl}*Detalhes:* ${userData.descricao}` : '');
-
-      const phone = '5588999040110';
-      const waUrl = `https://wa.me/${phone}?text=${msg}`;
-      document.getElementById('whatsappLink').href = waUrl;
-
-      // Mostrar tela de sucesso
-      document.getElementById('progressBar').style.display = 'none';
-      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-      document.getElementById('successScreen').style.display = 'block';
-
-      // Salvar lead no Firebase com reCAPTCHA v3
-      (async () => {
-        try {
-          // 3. reCAPTCHA v3: verificação invisível de bot
-          let recaptchaToken = null;
-          if (RECAPTCHA_SITE_KEY && RECAPTCHA_SITE_KEY !== 'SUA_SITE_KEY') {
-            try {
-              recaptchaToken = await new Promise((resolve, reject) => {
-                grecaptcha.ready(() => {
-                  grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit_lead' })
-                    .then(resolve).catch(reject);
-                });
-              });
-            } catch(e) { console.warn('reCAPTCHA indisponível:', e.message); }
-          }
-
-          const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-          const { getFirestore, addDoc, collection } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-          const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js");
-          const firebaseConfig = {
-            apiKey: "AIzaSyC65-p-s1F6wKMRo5Kc05vHlk2KyP9IkqE",
-            authDomain: "ef-crm-d78da.firebaseapp.com",
-            projectId: "ef-crm-d78da",
-            storageBucket: "ef-crm-d78da.firebasestorage.app",
-            messagingSenderId: "648795539910",
-            appId: "1:648795539910:web:4fc50161a83b03db114ac7"
-          };
-          const existingApps = getApps();
-          const fbApp = existingApps.find(a => a.name === 'formulario') || initializeApp(firebaseConfig, 'formulario');
-          // App Check — valida que requisição vem do seu site
-          try {
-            initializeAppCheck(fbApp, {
-              provider: new ReCaptchaV3Provider('6LcsAY0sAAAAALS3lGcBGqwrPoleVfy9D0nKSrsa'),
-              isTokenAutoRefreshEnabled: true
-            });
-          } catch(e) { /* já inicializado */ }
-          const db = getFirestore(fbApp);
-          await addDoc(collection(db, 'leads'), {
-            ...userData,
-            origem: 'formulario',
-            status: 'novo',
-            lido: false,
-            data: new Date().toISOString(),
-            historico: [],
-            anotacoes: '',
-            _recaptchaToken: recaptchaToken || 'nao_configurado',
-            _userAgent: navigator.userAgent.substring(0, 100),
-            _sessionSubmits: submitCount
-          });
-          console.log('Lead salvo no CRM com sucesso!');
-        } catch(e) {
-          console.error('Erro ao salvar lead no Firebase:', e.code, e.message);
-        }
-      })();
-    }
-  });
-
-  // Back buttons
-  document.getElementById('back2').addEventListener('click', () => { currentStep = 1; showStep(1); });
-  document.getElementById('back3').addEventListener('click', () => { currentStep = 2; showStep(2); });
-
-  // Phone mask
-  document.getElementById('whatsapp').addEventListener('input', function() {
-    let v = this.value.replace(/\D/g, '').substring(0, 11);
-    if (v.length > 6) v = `(${v.substring(0,2)}) ${v.substring(2,7)}-${v.substring(7)}`;
-    else if (v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
-    else if (v.length > 0) v = `(${v}`;
-    this.value = v;
-  });
-</script>
-
 </body>
 </html>
