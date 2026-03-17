@@ -529,8 +529,7 @@ text-transform: uppercase;
         <div class="card-body">
           <div class="radio-dot"></div>
           <div>
-            <div class="card-text">Arquiteto(a)</div>
-            <div class="card-sub">Preciso de compatibilização estrutural para projetos de clientes</div>
+            <div class="card-text">Arquiteto(a) / Engenheiro(a)</div>
           </div>
         </div>
       </label>
@@ -539,8 +538,7 @@ text-transform: uppercase;
         <div class="card-body">
           <div class="radio-dot"></div>
           <div>
-            <div class="card-text">Construtora / Incorporadora</div>
-            <div class="card-sub">Demanda recorrente de projetos estruturais</div>
+            <div class="card-text">Construtora / Incorporadora / Escritório</div>
           </div>
         </div>
       </label>
@@ -550,7 +548,6 @@ text-transform: uppercase;
           <div class="radio-dot"></div>
           <div>
             <div class="card-text">Proprietário / Pessoa Física</div>
-            <div class="card-sub">Quero construir ou reformar meu imóvel</div>
           </div>
         </div>
       </label>
@@ -595,7 +592,6 @@ text-transform: uppercase;
           <div class="radio-dot"></div>
           <div>
             <div class="card-text">Projeto Estrutural Completo</div>
-            <div class="card-sub">Cálculo, dimensionamento e pranchas para execução</div>
           </div>
         </div>
       </label>
@@ -605,7 +601,6 @@ text-transform: uppercase;
           <div class="radio-dot"></div>
           <div>
             <div class="card-text">Revisão de Projeto</div>
-            <div class="card-sub">Análise e validação de projeto existente</div>
           </div>
         </div>
       </label>
@@ -615,7 +610,6 @@ text-transform: uppercase;
           <div class="radio-dot"></div>
           <div>
             <div class="card-text">Consultoria / Laudo Técnico</div>
-            <div class="card-sub">Avaliação de obra, patologias ou problemas estruturais</div>
           </div>
         </div>
       </label>
@@ -625,7 +619,6 @@ text-transform: uppercase;
           <div class="radio-dot"></div>
           <div>
             <div class="card-text">Acompanhamento de Obra</div>
-            <div class="card-sub">Supervisão da execução estrutural</div>
           </div>
         </div>
       </label>
@@ -837,16 +830,15 @@ text-transform: uppercase;
     clearError('f-whatsapp');
     if (wpp.length < 10) { setError('f-whatsapp'); valid = false; }
 
-    const email = document.getElementById('email').value.trim();
+    const emailVal = document.getElementById('email').value.trim();
     clearError('f-email');
-    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!emailValido) { setError('f-email'); valid = false; }
+    if (!emailVal || !/^[^@]+@[^@]+\.[^@]+$/.test(emailVal)) { setError('f-email'); valid = false; }
 
     if (valid) {
       userData.nome = nome;
       userData.tipo = tipo;
       userData.whatsapp = document.getElementById('whatsapp').value.trim();
-      userData.email = email;
+      userData.email = emailVal;
       currentStep = 2;
       showStep(2);
     }
@@ -918,7 +910,6 @@ text-transform: uppercase;
       const nl = '%0A';
       const msg = `Olá Emanuel! Preenchi o formulário de contato.${nl}${nl}` +
         `*Nome:* ${userData.nome} ${nl}` +
-        `*E-mail:* ${userData.email} ${nl}` +
         `*Sou:* ${labels.tipo[userData.tipo]} ${nl}` +
         `*Serviço:* ${labels.servico[userData.servico]} ` +
         `*Tipologia:* ${labels.tipologia[userData.tipologia]}${nl}` +
@@ -938,7 +929,7 @@ text-transform: uppercase;
       document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       document.getElementById('successScreen').style.display = 'block';
 
-      // Salvar lead no Firebase Firestore em background
+      // Salvar lead no Firebase em background
       (async () => {
         try {
           const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
@@ -965,7 +956,7 @@ text-transform: uppercase;
           });
           console.log('Lead salvo no CRM com sucesso!');
         } catch(e) {
-          console.error('Erro ao salvar lead:', e.code, e.message);
+          console.error('Erro ao salvar lead no Firebase:', e.code, e.message);
         }
       })();
     }
