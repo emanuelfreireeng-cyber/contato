@@ -848,9 +848,15 @@ function renderDashboard(){
     const d=new Date(c.criadoEm||'2000-01-01');
     return d>=cutoffDe && d<=cutoffAte;
   });
-  // Para receita financeira usamos todos os projetos (sem filtro de data)
-  const todosProjetos=cache.projetos;
   const todosClientes=cache.clientes;
+
+  // Projetos filtrados pelo período (usa data de início ou criadoEm)
+  const todosProjetos=cache.projetos.filter(p=>{
+    const dataRef = p.inicio || p.criadoEm;
+    if(!dataRef) return true; // sem data = sempre inclui (projeto antigo sem data)
+    const d = new Date(dataRef);
+    return d>=cutoffDe && d<=cutoffAte;
+  });
 
   const totalL=leads.length,ativosL=leads.filter(l=>!['fechado','perdido'].includes(l.status)).length;
   const propostas=leads.filter(l=>l.status==='proposta').length,fechados=leads.filter(l=>l.status==='fechado').length,perdidos=leads.filter(l=>l.status==='perdido').length;
@@ -866,16 +872,8 @@ function renderDashboard(){
   const recEntregue=todosProjetos.filter(p=>p.status==='entregue').reduce((s,p)=>s+Number(p.valor||0),0);
   const recRecebido=todosProjetos.reduce((s,p)=>s+(p.parcelas||[]).filter(x=>x.pago).reduce((ss,x)=>ss+Number(x.valor||0),0),0);
   const recPendente=todosProjetos.reduce((s,p)=>s+(p.parcelas||[]).filter(x=>!x.pago).reduce((ss,x)=>ss+Number(x.valor||0),0),0);
-  // Ticket médio: filtra por criadoEm (data real de cadastro no Firestore)
-  // Se criadoEm não existe no documento, o projeto é excluído do cálculo do período
-  // Usa data de início do projeto como referência para filtros
-  // Fallback: criadoEm (data de cadastro no Firestore)
-  const projetosPeriodo = todosProjetos.filter(p=>{
-    const dataRef = p.inicio || p.criadoEm;
-    if(!dataRef) return false;
-    const d = new Date(dataRef);
-    return d>=cutoffDe && d<=cutoffAte;
-  });
+  // Ticket médio
+  const projetosPeriodo=todosProjetos.filter(p=>p.inicio||p.criadoEm);
   const ticket=projetosPeriodo.length>0
     ?(projetosPeriodo.reduce((s,p)=>s+Number(p.valor||0),0)/projetosPeriodo.length).toLocaleString('pt-BR',{minimumFractionDigits:0})
     :'—';
