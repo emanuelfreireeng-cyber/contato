@@ -824,7 +824,7 @@ function renderDashboard(){
   const projAtivos=todosProjetos.filter(p=>!['entregue','cancelado'].includes(p.status)).length;
   const recTotal=todosProjetos.reduce((s,p)=>s+Number(p.valor||0),0);
   const recEntregue=todosProjetos.filter(p=>p.status==='entregue').reduce((s,p)=>s+Number(p.valor||0),0);
-  const ticket=todosProjetos.length>0?(recTotal/todosProjetos.length).toLocaleString('pt-BR',{minimumFractionDigits:0}):'-';
+  const ticket=projetos.length>0?(projetos.reduce((s,p)=>s+Number(p.valor||0),0)/projetos.length).toLocaleString('pt-BR',{minimumFractionDigits:0}):'-';
   const sColors={novo:'#4a9eff',contato:'#f5a623',negociacao:'#E85D20',proposta:'#8a57eb',fechado:'#2dd4a0',perdido:'#e05252'};
   const sCounts={};Object.keys(L.status).forEach(k=>sCounts[k]=leads.filter(l=>l.status===k).length);
   const maxS=Math.max(...Object.values(sCounts),1);
