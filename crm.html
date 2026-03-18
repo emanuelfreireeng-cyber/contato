@@ -1549,7 +1549,7 @@ async function renderEspecialidadesCheckboxes(selecionadas=[]){
     <label id="esp-label-${e.replace(/[^a-z0-9]/gi,'_')}"
       data-esp="${e.replace(/"/g,'&quot;')}"
       style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted2);padding:6px 10px;border:1px solid var(--border2);transition:all .15s;user-select:none"
-      onclick="toggleEspecialidade(this,'${e.replace(/'/g,'\\'')}')">
+      onclick="toggleEspecialidade(this)">
       <span class="esp-check" style="width:14px;height:14px;border:1.5px solid var(--muted);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;color:#000"></span>
       ${e}
     </label>`).join('') +
@@ -1572,7 +1572,7 @@ async function renderEspecialidadesCheckboxes(selecionadas=[]){
   });
 }
 
-window.toggleEspecialidade=(lbl, esp)=>{
+window.toggleEspecialidade=(lbl)=>{
   const sel = lbl.dataset.selected==='1';
   const chk = lbl.querySelector('.esp-check');
   if(sel){
